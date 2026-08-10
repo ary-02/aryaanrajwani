@@ -1,0 +1,75 @@
+@import "tailwindcss";
+
+@theme {
+  /* Warm near-black carried over from the hero's design tokens. */
+  --color-ink: #180e08;
+
+  /* Signature wordmark. System faces only — no webfont is loaded, so the stack
+     must degrade rather than land on whatever `cursive` resolves to (Comic Sans
+     on plenty of Windows machines).
+
+     Snell Roundhand leads for macOS and Edwardian Script ITC for Windows, where
+     it arrives with Microsoft Office. Both are fine-stroked copperplate scripts,
+     which is what makes the mark read as a signature instead of as bold italic
+     type. Everything after them is a readability fallback, ending in a serif
+     that only looks right because the wordmark is also set in italic.
+
+     Deliberately excluded, all present on Windows: Palace Script MT and Kunstler
+     Script (strokes so fine they disappear at wordmark size), Vivaldi and French
+     Script MT (decorative capitals that turn the leading A into a Q), Segoe
+     Script and Brush Script MT (cheap at any size). */
+  --font-signature:
+    "Snell Roundhand", "Edwardian Script ITC", "Apple Chancery",
+    "Monotype Corsiva", "Lucida Calligraphy", "Palatino Linotype", Palatino,
+    Georgia, cursive, serif;
+}
+
+/* Drives src/components/blocks/shimmer-button. These ship in Magic UI's registry
+   manifest (cssVars.theme + css), NOT in the component file — paste the .tsx on
+   its own and the button renders with no shimmer and no error.
+
+   `inline` is load-bearing. Both values reference --speed, which the button sets
+   on itself and which does not exist at :root. A plain @theme emits them as
+   :root variables, where the undefined var() makes them invalid at
+   computed-value time — they resolve to nothing and inherit that way, so the
+   animation silently never runs. `inline` substitutes the value into the
+   utility instead, letting --speed resolve on the element that sets it. */
+@theme inline {
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+}
+
+@keyframes shimmer-slide {
+  to {
+    transform: translate(calc(100cqw - 100%), 0);
+  }
+}
+
+@keyframes spin-around {
+  0% {
+    transform: translateZ(0) rotate(0);
+  }
+  15%,
+  35% {
+    transform: translateZ(0) rotate(90deg);
+  }
+  65%,
+  85% {
+    transform: translateZ(0) rotate(270deg);
+  }
+  100% {
+    transform: translateZ(0) rotate(360deg);
+  }
+}
+
+html {
+  background-color: var(--color-ink);
+  /* Powers the nav's anchor links — no JS scroll handler needed. */
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
