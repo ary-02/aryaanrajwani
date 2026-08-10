@@ -762,7 +762,11 @@ function EntryCard({
               )}
             </div>
 
-            <MorphingDialogClose className="top-5 right-5 text-white/50 transition-colors duration-200 hover:text-white" />
+            {/* The button is pinned to the panel while the body scrolls
+                underneath it, so on a narrow screen it ends up sitting on top
+                of running text. The tinted disc keeps it legible over whatever
+                scrolls past and makes the tap target obvious. */}
+            <MorphingDialogClose className="top-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.10] bg-[#1f130b]/85 text-white/60 backdrop-blur-sm transition-colors duration-200 hover:border-white/25 hover:text-white" />
           </MorphingDialogContent>
         </MorphingDialogContainer>
       </MorphingDialog>

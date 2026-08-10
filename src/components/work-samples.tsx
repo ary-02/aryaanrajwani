@@ -69,28 +69,36 @@ function FileRow({ file }: { file: EntryFile }) {
   const Icon = spreadsheet ? FileSpreadsheet : FileText;
 
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3">
-      <Icon className="h-4 w-4 shrink-0 text-white/45" aria-hidden="true" />
-      <span className="min-w-0 flex-1 text-sm text-white/70">{file.label}</span>
+    /* Stacks below sm. A single flex row wraps the LABEL rather than moving the
+       actions, which leaves the links floating against the middle line of a
+       three-line filename — it reads as overlapping text. Splitting the row
+       into two groups keeps the label whole and puts the actions underneath. */
+    <div className="flex flex-col gap-3 rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3 sm:flex-row sm:items-center sm:gap-x-4">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <Icon className="h-4 w-4 shrink-0 text-white/45" aria-hidden="true" />
+        <span className="min-w-0 text-sm text-white/70">{file.label}</span>
+      </div>
 
-      {file.viewer === "office" && (
-        <a
-          href={officeViewerHref(file.href)}
-          target="_blank"
-          rel="noreferrer noopener"
-          className={LINK_CLASS}
-        >
-          View read-only
-          <ArrowUpRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+        {file.viewer === "office" && (
+          <a
+            href={officeViewerHref(file.href)}
+            target="_blank"
+            rel="noreferrer noopener"
+            className={LINK_CLASS}
+          >
+            View read-only
+            <ArrowUpRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          </a>
+        )}
+
+        {/* `download` rather than a plain link: without it the browser navigates
+            to the file and, finding nothing it can render, leaves a blank tab. */}
+        <a href={file.href} download className={LINK_CLASS}>
+          Download
+          <Download className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
         </a>
-      )}
-
-      {/* `download` rather than a plain link: without it the browser navigates
-          to the file and, finding nothing it can render, leaves a blank tab. */}
-      <a href={file.href} download className={LINK_CLASS}>
-        Download
-        <Download className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      </a>
+      </div>
     </div>
   );
 }
