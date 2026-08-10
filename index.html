@@ -3,7 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MOTION</title>
+
+    <title>Aryaan Rajwani</title>
+    <meta
+      name="description"
+      content="Aryaan Rajwani — 21, making asymmetric bets."
+    />
+
+    <!-- Tints the browser chrome on Android and on iOS Safari's toolbar, so the
+         page does not open framed in white. Matches --color-ink. -->
+    <meta name="theme-color" content="#180e08" />
+
+    <!-- Declaring an icon stops the browser probing /favicon.ico and 404ing.
+         The mark is a baked PNG rather than SVG text: an SVG favicon carries no
+         font, so a <text> element would render in whatever face the viewer's OS
+         substitutes and the monogram would differ per machine. -->
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/favicon.png" />
+
+    <!-- Open Graph: what LinkedIn, WhatsApp, iMessage and Slack render when the
+         link is pasted. og:image MUST be an absolute URL — these scrapers do
+         not resolve relative paths. %SITE_URL% is substituted at build time
+         from Vercel's production hostname (see vite.config.ts), so these follow
+         the deployment instead of pinning a domain that can be renamed. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Aryaan Rajwani" />
+    <meta property="og:title" content="Aryaan Rajwani" />
+    <meta
+      property="og:description"
+      content="Aryaan Rajwani — 21, making asymmetric bets."
+    />
+    <meta property="og:url" content="%SITE_URL%/" />
+    <meta
+      property="og:image"
+      content="%SITE_URL%/og.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Aryaan Rajwani — making asymmetric bets"
+    />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Aryaan Rajwani" />
+    <meta
+      name="twitter:description"
+      content="Aryaan Rajwani — 21, making asymmetric bets."
+    />
+    <meta
+      name="twitter:image"
+      content="%SITE_URL%/og.png"
+    />
+
+    <link rel="canonical" href="%SITE_URL%/" />
   </head>
   <body>
     <div id="root"></div>
