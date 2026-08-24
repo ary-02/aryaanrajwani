@@ -1,5 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { ArrowUpRight } from "lucide-react";
+// ArrowUpRight means "this leaves the site" and is kept for genuine outbound
+// links. Dialog triggers take ArrowRight instead: they open a panel in place,
+// and a diagonal there promises a navigation that never happens.
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Section, { Reveal } from "@/components/section";
 import { ProgressiveBlur } from "@/components/blocks/progressive-blur";
 import AutoScroller from "@/components/auto-scroller";
@@ -118,6 +121,13 @@ interface Entry {
    * line that has to be present but must not compete with the content.
    */
   note?: string;
+  /**
+   * An aside under the entry's strip, outside the card. Deliberately quiet —
+   * smaller, dimmer and italic — so it reads as a remark rather than as
+   * information. The category panels take theirs from CATEGORY_CAPTIONS; this
+   * is the same treatment for a single entry.
+   */
+  caption?: string;
 }
 
 // Roles, titles and dates transcribed from the August 2026 resume.
@@ -282,6 +292,7 @@ const PROJECTS: Entry[] = [
     // "Doane Grant Thornton · G&R CPA" — the strips all separate this line the
     // same way.
     org: "Personal Project · Claude Coded · Live Demo",
+    caption: "Personal use case oriented project",
     logo: "/logos/projects/portfolio.png",
     blurb: "",
     tags: [],
@@ -291,6 +302,7 @@ const PROJECTS: Entry[] = [
     title: "Claude Automated Discounted Cash Flow Model",
     shortTitle: "Auto DCF Builder",
     org: "Personal Project · Claude Coded · Live",
+    caption: "One of many automation ideas but this one felt natural to me",
     blurb: "",
     tags: ["Beta"],
   },
@@ -1098,8 +1110,8 @@ function WorkCategoryBlock({
                 ))}
               </div>
 
-              <ArrowUpRight
-                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white/85"
+              <ArrowRight
+                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85"
                 aria-hidden="true"
               />
             </div>
@@ -1191,8 +1203,8 @@ function CertBranchStrip({ entry }: { entry: Entry }) {
           </MorphingDialogSubtitle>
         </span>
 
-        <ArrowUpRight
-          className="h-3.5 w-3.5 shrink-0 text-white/30 transition-colors duration-150 group-hover:text-white/70"
+        <ArrowRight
+          className="h-3.5 w-3.5 shrink-0 text-white/30 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/70"
           aria-hidden="true"
         />
       </MorphingDialogTrigger>
@@ -1346,12 +1358,17 @@ function EntryStrip({ entry }: { entry: Entry }) {
     // `h-full` down the chain: the grid stretches this article to the tallest
     // row, and without it the trigger inside keeps its own content height — so
     // a two-line title left one card visibly taller than its neighbours.
-    <article className={`${PANEL_WIDTH} h-full`}>
+    // A flex column, but the trigger is NOT allowed to grow into the cell.
+    // The grid equalises row heights, and a stretching trigger meant the strip
+    // with no caption absorbed the space its neighbours spent on one — leaving
+    // one card visibly taller than the rest. Cards stay uniform; any slack
+    // falls below the caption, where nobody can see it.
+    <article className={`${PANEL_WIDTH} flex h-full flex-col`}>
       <MorphingDialog
         transition={{ type: "spring", stiffness: 200, damping: 24 }}
       >
         <MorphingDialogTrigger
-          className={`group block h-full w-full ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6`}
+          className={`group block w-full shrink-0 ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6`}
         >
           <div className="flex h-full flex-col justify-between gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
             <div className="min-w-0">
@@ -1381,8 +1398,8 @@ function EntryStrip({ entry }: { entry: Entry }) {
                 Image={PlainImage}
               />
 
-              <ArrowUpRight
-                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white/85"
+              <ArrowRight
+                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85"
                 aria-hidden="true"
               />
             </div>
@@ -1399,6 +1416,12 @@ function EntryStrip({ entry }: { entry: Entry }) {
           </MorphingDialogContent>
         </MorphingDialogContainer>
       </MorphingDialog>
+
+      {entry.caption && (
+        <p className="mt-2.5 pl-1 text-xs text-white/35 italic">
+          {entry.caption}
+        </p>
+      )}
     </article>
   );
 }
