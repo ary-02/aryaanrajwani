@@ -175,17 +175,17 @@ export default function Hero42() {
                 </motion.span>
               </motion.h1>
 
-              {/* Subtitle — two lines, each starting on its own row */}
+              {/* Subtitle — one sentence, wrapping naturally. The measure is
+                  set wide enough that it breaks into two or three lines rather
+                  than a narrow block of text under the headline. */}
               <motion.p
                 variants={subtitleVariants}
                 initial="hidden"
                 animate="show"
-                className="mt-5 max-w-[420px] text-sm leading-[1.65] font-normal text-pretty text-white/70 will-change-transform sm:text-base"
+                className="mt-5 max-w-[520px] text-sm leading-[1.65] font-normal text-pretty text-white/70 will-change-transform sm:text-base"
               >
-                <span className="block">21, building brick by brick</span>
-                <span className="block">
-                  Finding an intersection in things I love and admire
-                </span>
+                Hey, I'm Aryaan. I am 21, shooting strategic shots across
+                industries to find an intersection at things I admire
               </motion.p>
 
               {/* CTA buttons */}
