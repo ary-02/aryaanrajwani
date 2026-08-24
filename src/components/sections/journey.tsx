@@ -36,6 +36,14 @@ interface EntryGroup {
  */
 type WorkCategory = "Accounting" | "Finance" | "Venture Capital";
 
+/**
+ * What a certification can hang off. A work category, or the projects as a
+ * group — the two Claude certificates fed all three projects rather than any
+ * one of them, so they converge on the set instead of branching from a single
+ * entry.
+ */
+type BranchTarget = WorkCategory | "Projects";
+
 interface Entry {
   period: string;
   /**
@@ -51,7 +59,7 @@ interface Entry {
    *
    * Unset is the normal case, and those still list in the block below.
    */
-  branchOf?: WorkCategory;
+  branchOf?: BranchTarget;
   title: string;
   /**
    * Shorter label for the compact branch strips, where the full title would
@@ -336,6 +344,7 @@ const CERTIFICATIONS: Entry[] = [
     // Verified: skilljar records "Claude Code in Action", completed 27 June 2026.
     period: "2026",
     title: "Claude Code in Action",
+    branchOf: "Projects",
     org: "Anthropic",
     logo: "/logos/certfi/anthropic.png",
     document: {
@@ -350,6 +359,7 @@ const CERTIFICATIONS: Entry[] = [
     // Verified: skilljar records "Claude Code 101", completed 25 June 2026.
     period: "2026",
     title: "Claude Code 101",
+    branchOf: "Projects",
     org: "Anthropic",
     logo: "/logos/certfi/anthropic.png",
     document: {
@@ -449,6 +459,11 @@ const AIMING_CATEGORIES = WORK_CATEGORIES.filter((c) => c.stage === "aiming");
  */
 const UNBRANCHED_CERTIFICATIONS = CERTIFICATIONS.filter(
   (entry) => !entry.branchOf,
+);
+
+/** The certifications that converge on the projects rather than on a role. */
+const PROJECT_CERTIFICATIONS = CERTIFICATIONS.filter(
+  (entry) => entry.branchOf === "Projects",
 );
 
 // Programme and dates from the August 2026 resume. Single entry by design — it renders as a
@@ -1556,28 +1571,77 @@ export default function Journey() {
       <Reveal standalone className="mt-12">
         <h3 className={BLOCK_LABEL}>Evolving world, evolving shots</h3>
 
-        {/* Same grid as the category stacks above, so the projects line up with
-            the roles rather than sitting in a scrolling box of their own. */}
-        <div className="flex flex-col gap-6 sm:grid sm:auto-rows-fr">
-          {PROJECTS.map((entry, i) => (
-            <EntryStrip key={i} entry={entry} />
-          ))}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-0">
+          {/*
+            The projects, with a rail down their right edge that every strip
+            reaches. The certificates then take a SINGLE line off the middle of
+            that rail, which is what draws three-into-two rather than six
+            separate lines: the two Claude courses fed all three projects, not
+            any one of them.
+
+            The rail is a border on this container rather than a positioned
+            element, so it spans exactly the projects' height whatever they
+            contain, and each stub is measured against the same `pr-8`.
+          */}
+          <div className="flex flex-col gap-6 sm:grid sm:auto-rows-fr sm:border-r sm:border-white/[0.14] sm:pr-8">
+            {PROJECTS.map((entry, i) => (
+              <div key={i} className="relative">
+                <EntryStrip entry={entry} />
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1/2 -right-8 hidden h-px w-8 bg-white/[0.14] sm:block"
+                />
+              </div>
+            ))}
+          </div>
+
+          {PROJECT_CERTIFICATIONS.length > 0 && (
+            <div className="relative sm:pl-8">
+              {/* Stacked, the rail and its stubs are gone — a line pointing
+                  left would point at nothing once the columns become rows — so
+                  a label carries the relationship instead. */}
+              <p className="mb-2 text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase sm:hidden">
+                What made all three possible
+              </p>
+
+              <span
+                aria-hidden="true"
+                className="absolute top-1/2 left-0 hidden h-px w-8 bg-white/[0.14] sm:block"
+              />
+
+              <div className="flex flex-col gap-2 pl-4 sm:w-[19rem] sm:pl-0">
+                {PROJECT_CERTIFICATIONS.map((entry, i) => (
+                  <CertBranchStrip key={i} entry={entry} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </Reveal>
 
       {/* Second row, mirroring the first. Both blocks loop, so neither has an
           intrinsic height — `minHeight` is what sizes the row, set to one card
           plus the block's padding. */}
-      <div className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-2 lg:gap-8">
-        <Reveal standalone>
-          <EntryBlock
-            label="Certifications"
-            minHeight="min-h-[278px]"
-            blurHeight="26%"
-          >
-            <LoopingEntries entries={UNBRANCHED_CERTIFICATIONS} />
-          </EntryBlock>
-        </Reveal>
+      {/* Every certification now branches off the work or the projects that
+          produced it, so this block usually has nothing left to show. It stays
+          for the day one lands that belongs to neither — rendering an empty
+          bordered box would read as a loading failure. */}
+      <div
+        className={`mt-6 grid gap-6 lg:mt-8 lg:gap-8 ${
+          UNBRANCHED_CERTIFICATIONS.length > 0 ? "lg:grid-cols-2" : ""
+        }`}
+      >
+        {UNBRANCHED_CERTIFICATIONS.length > 0 && (
+          <Reveal standalone>
+            <EntryBlock
+              label="Certifications"
+              minHeight="min-h-[278px]"
+              blurHeight="26%"
+            >
+              <LoopingEntries entries={UNBRANCHED_CERTIFICATIONS} />
+            </EntryBlock>
+          </Reveal>
+        )}
 
         <Reveal standalone>
           <EntryBlock
