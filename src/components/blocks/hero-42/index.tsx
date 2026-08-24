@@ -226,8 +226,8 @@ export default function Hero42() {
                 animate="show"
                 className="mt-5 max-w-[560px] text-xs leading-[1.7] text-pretty text-white/55 italic will-change-transform sm:text-sm"
               >
-                This website covers my proof of work, my wins, my strengths,
-                mistakes, weaknesses and procrastinations and my ambitions.
+                This website covers my proof of work, wins, strengths, mistakes,
+                weaknesses, procrastinations and my ambitions.
               </motion.p>
 
               {/* Resume — HIDDEN UNTIL THE REAL PDF LANDS.
