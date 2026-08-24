@@ -267,24 +267,28 @@ const WORK_EXPERIENCE: Entry[] = [
 // fall back to a monogram until files land in public/logos/projects.
 const PROJECTS: Entry[] = [
   {
-    // TODO: the resume gives no date for either project.
-    period: "TODO — year",
+    period: "July 2026",
     title: "Claude Coded Portfolio Tracker",
-    org: "Self-directed",
+    shortTitle: "Portfolio Tracker",
+    // Middots rather than semicolons, matching the Accounting strip's
+    // "Doane Grant Thornton · G&R CPA" — the strips all separate this line the
+    // same way.
+    org: "Personal Project · Claude Coded · Live Demo",
     logo: "/logos/projects/portfolio.png",
     blurb: "",
     tags: [],
   },
   {
-    period: "In progress",
+    period: "August 2026",
     title: "Claude Automated Discounted Cash Flow Model",
-    org: "Self-directed",
+    shortTitle: "Auto DCF Builder",
+    org: "Personal Project · Claude Coded · Live",
     blurb: "",
     tags: ["Beta"],
   },
   {
-    period: "In progress",
-    title: "MOTION",
+    period: "August 2026",
+    title: "Aryaan Rajwani's Website",
     org: "This website",
     blurb: "",
     tags: ["React", "TypeScript", "Tailwind"],
@@ -779,9 +783,11 @@ function EntryDetail({
         Image={morph ? undefined : PlainImage}
       />
 
-      <p className="mt-5 text-xs font-normal tracking-wide text-white/45">
-        {entry.period}
-      </p>
+      {entry.period && (
+        <p className="mt-5 text-xs font-normal tracking-wide text-white/45">
+          {entry.period}
+        </p>
+      )}
 
       <Title
         className={`mt-1.5 pr-8 font-medium text-white ${
@@ -1311,6 +1317,77 @@ function CategoryBranch({
  * Mobile stays a flex column: there the rows differ by hundreds of pixels, and
  * equalising them would pad the short ones with dead space.
  */
+/**
+ * A single entry wearing the category panel's clothes.
+ *
+ * Same footprint, same chrome, same dialog as WorkCategoryBlock — the
+ * difference is that there is no category above the entry, so the title leads
+ * and there are no tabs. Sharing PANEL_WIDTH and PANEL_MIN_HEIGHT is the point:
+ * the projects have to sit at the same visual weight as the roles, or the
+ * heading above them is arguing something the layout contradicts.
+ */
+function EntryStrip({ entry }: { entry: Entry }) {
+  return (
+    // `h-full` down the chain: the grid stretches this article to the tallest
+    // row, and without it the trigger inside keeps its own content height — so
+    // a two-line title left one card visibly taller than its neighbours.
+    <article className={`${PANEL_WIDTH} h-full`}>
+      <MorphingDialog
+        transition={{ type: "spring", stiffness: 200, damping: 24 }}
+      >
+        <MorphingDialogTrigger
+          className={`group block h-full w-full ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6`}
+        >
+          <div className="flex h-full flex-col justify-between gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+            <div className="min-w-0">
+              {entry.period && (
+                <p className="text-xs font-normal tracking-wide text-white/45">
+                  {entry.period}
+                </p>
+              )}
+
+              <MorphingDialogTitle
+                className={`text-2xl leading-[1.15] font-medium tracking-[-0.02em] text-white ${
+                  entry.period ? "mt-1" : ""
+                }`}
+              >
+                {entry.shortTitle ?? entry.title}
+              </MorphingDialogTitle>
+              <MorphingDialogSubtitle className="mt-1 truncate text-sm text-orange-400/80">
+                {entry.org}
+              </MorphingDialogSubtitle>
+            </div>
+
+            <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-end">
+              <EntryLogo
+                entry={entry}
+                size="h-9 w-9"
+                label={entry.title}
+                Image={PlainImage}
+              />
+
+              <ArrowUpRight
+                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white/85"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+        </MorphingDialogTrigger>
+
+        <MorphingDialogContainer>
+          <MorphingDialogContent className="relative w-full max-w-lg rounded-xl border border-white/[0.14] bg-[#1f130b]">
+            <div className="max-h-[85vh] overflow-y-auto p-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <EntryDetail entry={entry} morph />
+            </div>
+
+            <MorphingDialogClose className="top-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.10] bg-[#1f130b]/85 text-white/60 backdrop-blur-sm transition-colors duration-200 hover:border-white/25 hover:text-white" />
+          </MorphingDialogContent>
+        </MorphingDialogContainer>
+      </MorphingDialog>
+    </article>
+  );
+}
+
 function CategoryStack({
   categories,
 }: {
@@ -1470,10 +1547,22 @@ export default function Journey() {
         )}
       </Reveal>
 
-      <Reveal standalone className="mt-6 lg:mt-8">
-        <EntryBlock label="Projects">
-          <LoopingEntries entries={PROJECTS} />
-        </EntryBlock>
+      {/* Third heading in the same run, set apart by the same mt-12 as
+          "Currently aiming at", and the third to use the hero's shooting
+          metaphor. The run reads as a sequence — the shots that landed, the one
+          being aimed at, and the ones aimed somewhere else entirely — so the
+          projects stop being a category of artefact and become the argument
+          that the finance track is a choice rather than the whole person. */}
+      <Reveal standalone className="mt-12">
+        <h3 className={BLOCK_LABEL}>Evolving world, evolving shots</h3>
+
+        {/* Same grid as the category stacks above, so the projects line up with
+            the roles rather than sitting in a scrolling box of their own. */}
+        <div className="flex flex-col gap-6 sm:grid sm:auto-rows-fr">
+          {PROJECTS.map((entry, i) => (
+            <EntryStrip key={i} entry={entry} />
+          ))}
+        </div>
       </Reveal>
 
       {/* Second row, mirroring the first. Both blocks loop, so neither has an
