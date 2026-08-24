@@ -193,7 +193,7 @@ export default function Hero42() {
                 variants={ctaVariants}
                 initial="hidden"
                 animate="show"
-                className="mt-8 flex flex-wrap items-center gap-3 will-change-transform"
+                className="mt-10 flex flex-wrap items-center gap-3 will-change-transform sm:mt-12"
               >
                 {/* Primary: orange filled with arrow — optical padding */}
                 <a
@@ -213,6 +213,16 @@ export default function Hero42() {
                   className="flex min-h-[44px] items-center rounded-lg border border-white/20 bg-white/[0.07] px-5 py-2.5 text-base font-normal text-white/80 backdrop-blur-sm transition-[transform,background-color,border-color] duration-150 ease-out hover:border-white/35 hover:bg-white/[0.11] hover:text-white active:scale-[0.96]"
                 >
                   The vision
+                </a>
+
+                {/* TODO: #about does not exist yet — the section is still to be
+                    built. Until it lands this link scrolls nowhere. Either ship
+                    the section or repoint this before the next deploy. */}
+                <a
+                  href="#about"
+                  className="flex min-h-[44px] items-center rounded-lg border border-white/20 bg-white/[0.07] px-5 py-2.5 text-base font-normal text-white/80 backdrop-blur-sm transition-[transform,background-color,border-color] duration-150 ease-out hover:border-white/35 hover:bg-white/[0.11] hover:text-white active:scale-[0.96]"
+                >
+                  About me
                 </a>
               </motion.div>
 
