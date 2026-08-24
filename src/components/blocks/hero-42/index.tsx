@@ -216,6 +216,20 @@ export default function Hero42() {
                 </a>
               </motion.div>
 
+              {/* Scope note — what the site actually contains. Sits under the
+                  CTAs at a smaller size and in italics so it reads as an aside
+                  to the buttons rather than as a third call to action. Shares
+                  ctaVariants, so it settles in with them. */}
+              <motion.p
+                variants={ctaVariants}
+                initial="hidden"
+                animate="show"
+                className="mt-5 max-w-[560px] text-xs leading-[1.7] text-pretty text-white/55 italic will-change-transform sm:text-sm"
+              >
+                This website covers my proof of work, my wins, my strengths,
+                mistakes, weaknesses and procrastinations and my ambitions.
+              </motion.p>
+
               {/* Resume — HIDDEN UNTIL THE REAL PDF LANDS.
                   public/resume.pdf is still the placeholder stub, and a button
                   that downloads a stub reads as broken, where a missing one
