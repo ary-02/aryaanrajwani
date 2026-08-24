@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ArrowUpRight } from "lucide-react";
 import Section, { Reveal } from "@/components/section";
 import { ProgressiveBlur } from "@/components/blocks/progressive-blur";
@@ -29,9 +29,36 @@ interface EntryGroup {
   as?: "chips" | "list";
 }
 
+/**
+ * Work Experience is grouped into category blocks rather than listed flat. A
+ * union rather than a bare string so a typo fails the typecheck instead of
+ * silently dropping the role out of every block.
+ */
+type WorkCategory = "Accounting" | "Finance" | "Venture Capital";
+
 interface Entry {
   period: string;
+  /**
+   * Which category block this role sits under. Work Experience only — projects,
+   * certifications and competitions are not grouped.
+   */
+  category?: WorkCategory;
+  /**
+   * For a certification: the work category it came out of. Set it and the
+   * certification branches off that category's strip instead of sitting in the
+   * Certifications block — a credential means more beside the role that earned
+   * it than in a row of badges.
+   *
+   * Unset is the normal case, and those still list in the block below.
+   */
+  branchOf?: WorkCategory;
   title: string;
+  /**
+   * Shorter label for the compact branch strips, where the full title would
+   * clamp mid-word. The dialog always shows `title` — the official name is what
+   * a certificate is verified against, so it must not be the thing we shorten.
+   */
+  shortTitle?: string;
   org: string;
   /**
    * Path to the organisation's logo, served from `public/` — e.g.
@@ -95,6 +122,7 @@ const WORK_EXPERIENCE: Entry[] = [
     period: "From September 2026",
     title: "Investment Associate",
     org: "Venture Grade",
+    category: "Venture Capital",
     logo: "/logos/work-exp/venture-grade.jpeg",
     blurb: "",
     links: [
@@ -120,10 +148,14 @@ const WORK_EXPERIENCE: Entry[] = [
     period: "January 2026 — April 2026",
     title: "Accounting Intern (Co-op)",
     org: "Doane Grant Thornton",
+    category: "Accounting",
     logo: "/logos/work-exp/grant-thornton.jpeg",
     blurb: "",
     links: [
-      { label: "doanegrantthornton.ca", href: "https://www.doanegrantthornton.ca/" },
+      {
+        label: "doanegrantthornton.ca",
+        href: "https://www.doanegrantthornton.ca/",
+      },
     ],
     gallery: [
       {
@@ -149,6 +181,7 @@ const WORK_EXPERIENCE: Entry[] = [
     period: "September 2025 — Present",
     title: "Fund Manager & Ex-Equity Research Associate, Technology & Telecom",
     org: "IMPACT Investment Fund",
+    category: "Finance",
     logo: "/logos/work-exp/impact-investment-fund.jpeg",
     blurb: "",
     gallery: [
@@ -210,6 +243,7 @@ const WORK_EXPERIENCE: Entry[] = [
     period: "February 2025 — July 2025",
     title: "Accounting Intern (Part-time + Co-op)",
     org: "G&R CPA",
+    category: "Accounting",
     logo: "/logos/work-exp/gr-cpa.png",
     blurb: "",
     links: [{ label: "grcpa.ca", href: "https://grcpa.ca/" }],
@@ -265,6 +299,7 @@ const CERTIFICATIONS: Entry[] = [
   {
     period: "2025",
     title: "Bloomberg Market Concepts",
+    branchOf: "Finance",
     org: "Bloomberg",
     logo: "/logos/certfi/bloomberg.jpeg",
     document: {
@@ -280,6 +315,9 @@ const CERTIFICATIONS: Entry[] = [
     // "Financial Modelling & Corporate Valuations"; granted 27 October 2025.
     period: "2025",
     title: "Financial Modeling Fundamentals and Corporate Valuation",
+    // Aryaan's own shortening, matching how the resume lists it.
+    shortTitle: "Financial Modelling",
+    branchOf: "Finance",
     org: "Training The Street",
     logo: "/logos/certfi/training-the-street.jpeg",
     document: {
@@ -319,6 +357,88 @@ const CERTIFICATIONS: Entry[] = [
     tags: [],
   },
 ];
+
+/**
+ * Work Experience, grouped for display. Order is editorial, not chronological:
+ * finance leads because it is the direction Aryaan is heading rather than the
+ * one with the most hours behind it, accounting follows as the deeper record,
+ * and venture capital closes on the incoming role.
+ *
+ * Derived from WORK_EXPERIENCE rather than duplicating the entries, so the
+ * resume ordering above stays the single source of truth. A role whose
+ * `category` is unset appears in no block — the union type on WorkCategory is
+ * what stops a typo causing that silently.
+ */
+/**
+ * What the WORK in a category built — not what its certificates taught. These
+ * branch off the category panel itself, as siblings of the certifications
+ * rather than children of them, because the roles are where they came from.
+ *
+ * A category with no entry here renders no skills tier.
+ */
+const CATEGORY_SKILLS: Partial<Record<WorkCategory, string[]>> = {
+  Finance: ["Forecasting", "Analytics", "Research", "Narration"],
+  Accounting: [
+    "Client Communication",
+    "Compliance",
+    "Canadian Tax",
+    "Tax Frameworks",
+    "Strategy",
+    "Procedural Planning",
+  ],
+};
+
+/**
+ * An aside under a category panel. Deliberately quiet — smaller, dimmer and
+ * italic — so it reads as a remark rather than as information, which is the
+ * only way a joke survives sitting next to a resume.
+ */
+const CATEGORY_CAPTIONS: Partial<Record<WorkCategory, string>> = {
+  Finance: "In my peak finance bro era",
+  Accounting:
+    "Safe to say that I can debit what comes in and credit what goes out",
+};
+
+/**
+ * Whether a category has already happened or is still ahead.
+ *
+ * Venture Grade starts in September 2026, so filing it under "Successful Shots"
+ * beside two finished roles would claim a result that has not happened yet.
+ * Split out, the same entry reads as intent rather than as an overstatement.
+ */
+const CATEGORY_STAGE: Record<WorkCategory, "landed" | "aiming"> = {
+  Finance: "landed",
+  Accounting: "landed",
+  "Venture Capital": "aiming",
+};
+
+const WORK_CATEGORIES: {
+  label: WorkCategory;
+  entries: Entry[];
+  branches: Entry[];
+  skills: string[];
+  caption?: string;
+  stage: "landed" | "aiming";
+}[] = (["Finance", "Accounting", "Venture Capital"] as const).map((label) => ({
+  label,
+  entries: WORK_EXPERIENCE.filter((entry) => entry.category === label),
+  branches: CERTIFICATIONS.filter((entry) => entry.branchOf === label),
+  skills: CATEGORY_SKILLS[label] ?? [],
+  caption: CATEGORY_CAPTIONS[label],
+  stage: CATEGORY_STAGE[label],
+}));
+
+const LANDED_CATEGORIES = WORK_CATEGORIES.filter((c) => c.stage === "landed");
+const AIMING_CATEGORIES = WORK_CATEGORIES.filter((c) => c.stage === "aiming");
+
+/**
+ * The certifications that did NOT branch off a role, and so still need the
+ * block below to be seen at all. Derived rather than hand-maintained, so moving
+ * a certification onto a category cannot leave it listed in both places.
+ */
+const UNBRANCHED_CERTIFICATIONS = CERTIFICATIONS.filter(
+  (entry) => !entry.branchOf,
+);
 
 // Programme and dates from the August 2026 resume. Single entry by design — it renders as a
 // full-width card below the other blocks and does not scroll.
@@ -576,6 +696,221 @@ function EntryLogo({
  */
 type Emphasis = "title" | "org";
 
+/**
+ * Non-morphing stand-ins for the dialog's shared-layout elements.
+ *
+ * MorphingDialogTitle/Subtitle/Image read the dialog's `uniqueId` from context
+ * and animate against the card that opened it. Inside a category dialog that
+ * card is the CATEGORY, not the role, so using them for a role's title would
+ * hand two elements the same layoutId and the morph would tear. These render
+ * the same markup with no shared-layout participation.
+ */
+function PlainTitle({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <h3 className={className}>{children}</h3>;
+}
+
+function PlainSubtitle({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <p className={className}>{children}</p>;
+}
+
+function PlainImage({
+  src,
+  alt,
+  className,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+}) {
+  return <img src={src} alt={alt} className={className} />;
+}
+
+/**
+ * Everything inside an entry's dialog, below the panel chrome.
+ *
+ * Factored out of EntryCard so a category dialog can render the same detail for
+ * whichever role is on show without duplicating it. `morph` picks the animating
+ * title/logo (a role opened directly from its own card) or the static ones (a
+ * role reached through a category block).
+ *
+ * Deliberately renders no scroll container of its own — each dialog owns its
+ * own scrolling, because the category dialog keeps its tab bar outside it.
+ */
+function EntryDetail({
+  entry,
+  emphasis = "title",
+  morph = false,
+}: {
+  entry: Entry;
+  emphasis?: Emphasis;
+  morph?: boolean;
+}) {
+  const leadsWithOrg = emphasis === "org";
+  const primary = leadsWithOrg ? entry.org : entry.title;
+  const secondary = leadsWithOrg ? entry.title : entry.org;
+  const Title = morph ? MorphingDialogTitle : PlainTitle;
+  const Subtitle = morph ? MorphingDialogSubtitle : PlainSubtitle;
+
+  return (
+    <>
+      <EntryLogo
+        entry={entry}
+        size="h-14 w-14"
+        label={primary}
+        Image={morph ? undefined : PlainImage}
+      />
+
+      <p className="mt-5 text-xs font-normal tracking-wide text-white/45">
+        {entry.period}
+      </p>
+
+      <Title
+        className={`mt-1.5 pr-8 font-medium text-white ${
+          leadsWithOrg ? "text-3xl" : "text-2xl"
+        }`}
+      >
+        {primary}
+      </Title>
+      <Subtitle className="mt-1 text-sm text-orange-400/80">
+        {secondary}
+      </Subtitle>
+
+      {/* Every one of these is optional and most are empty today.
+          They must not render at all when blank, or the dialog carries
+          the margin of prose that isn't there. */}
+      {entry.blurb && (
+        <p className="mt-5 text-sm leading-[1.7] text-pretty text-white/70">
+          {entry.blurb}
+        </p>
+      )}
+
+      {entry.details?.map((paragraph, i) => (
+        <p
+          key={i}
+          className="mt-4 text-sm leading-[1.75] text-pretty text-white/60"
+        >
+          {paragraph}
+        </p>
+      ))}
+
+      {entry.links && entry.links.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+          {entry.links.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="inline-flex items-center gap-1.5 text-sm text-orange-400/90 underline-offset-4 transition-colors duration-150 hover:text-orange-300 hover:underline"
+            >
+              {link.label}
+              <ArrowUpRight
+                className="h-3.5 w-3.5 shrink-0"
+                aria-hidden="true"
+              />
+            </a>
+          ))}
+        </div>
+      )}
+
+      {entry.gallery && entry.gallery.length > 0 && (
+        <div className="mt-5">
+          <PhotoCarousel photos={entry.gallery} />
+        </div>
+      )}
+
+      {entry.document && (
+        <div className="mt-5">
+          <DocumentPreview doc={entry.document} />
+        </div>
+      )}
+
+      {entry.stats && entry.stats.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-3">
+          {entry.stats.map((stat) => (
+            <div
+              key={stat.label}
+              className="flex min-w-[8rem] flex-1 flex-col rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3"
+            >
+              <span className="text-2xl font-medium text-white">
+                {stat.value}
+              </span>
+              <span className={`mt-0.5 ${DIALOG_LABEL}`}>{stat.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {entry.groups?.map((group) => (
+        <div key={group.label} className="mt-6">
+          <h4 className={DIALOG_LABEL}>{group.label}</h4>
+
+          {group.as === "list" ? (
+            <ul className="mt-3 flex flex-col gap-2">
+              {group.items.map((item, i) => (
+                <li
+                  key={i}
+                  className="flex gap-2.5 text-sm leading-[1.6] text-white/70"
+                >
+                  {/* Own element rather than a list marker: `list-disc`
+                      can't be colour-matched to the accent. */}
+                  <span
+                    aria-hidden="true"
+                    className="mt-2 h-1 w-1 shrink-0 rounded-full bg-orange-400/70"
+                  />
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {group.items.map((item, i) => (
+                <span key={i} className={TAG_CLASS}>
+                  {item}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      ))}
+
+      {/* After the groups, deliberately: the work only means something
+          once you know what the role was. */}
+      {entry.works && entry.works.length > 0 && (
+        <WorkSamples works={entry.works} />
+      )}
+
+      {entry.tags.length > 0 && (
+        <div className="mt-6 flex flex-wrap gap-2">
+          {entry.tags.map((tag, i) => (
+            <span key={i} className={TAG_CLASS}>
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+
+      {entry.note && (
+        <p className="mt-6 border-t border-white/[0.08] pt-4 text-xs leading-relaxed text-white/35 italic">
+          {entry.note}
+        </p>
+      )}
+    </>
+  );
+}
+
 function EntryCard({
   entry,
   emphasis = "title",
@@ -597,7 +932,7 @@ function EntryCard({
             the dialog — that's the whole point of the morph. */}
         <MorphingDialogTrigger className="block w-full rounded-xl border border-white/[0.10] bg-white/[0.04] p-5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.20] hover:bg-white/[0.08]">
           <div className="flex items-start gap-4">
-            <EntryLogo entry={entry} size="h-10 w-10" label={primary} />
+            <EntryLogo entry={entry} size="h-9 w-9" label={primary} />
 
             <div className="min-w-0 flex-1">
               <p className="text-xs font-normal tracking-wide text-white/45">
@@ -621,145 +956,7 @@ function EntryCard({
         <MorphingDialogContainer>
           <MorphingDialogContent className="relative w-full max-w-lg rounded-xl border border-white/[0.14] bg-[#1f130b]">
             <div className="max-h-[85vh] overflow-y-auto p-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <EntryLogo entry={entry} size="h-14 w-14" label={primary} />
-
-              <p className="mt-5 text-xs font-normal tracking-wide text-white/45">
-                {entry.period}
-              </p>
-
-              <MorphingDialogTitle
-                className={`mt-1.5 pr-8 font-medium text-white ${
-                  leadsWithOrg ? "text-3xl" : "text-2xl"
-                }`}
-              >
-                {primary}
-              </MorphingDialogTitle>
-              <MorphingDialogSubtitle className="mt-1 text-sm text-orange-400/80">
-                {secondary}
-              </MorphingDialogSubtitle>
-
-              {/* Every one of these is optional and most are empty today.
-                  They must not render at all when blank, or the dialog carries
-                  the margin of prose that isn't there. */}
-              {entry.blurb && (
-                <p className="mt-5 text-sm leading-[1.7] text-pretty text-white/70">
-                  {entry.blurb}
-                </p>
-              )}
-
-              {entry.details?.map((paragraph, i) => (
-                <p
-                  key={i}
-                  className="mt-4 text-sm leading-[1.75] text-pretty text-white/60"
-                >
-                  {paragraph}
-                </p>
-              ))}
-
-              {entry.links && entry.links.length > 0 && (
-                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-                  {entry.links.map((link) => (
-                    <a
-                      key={link.href}
-                      href={link.href}
-                      target="_blank"
-                      rel="noreferrer noopener"
-                      className="inline-flex items-center gap-1.5 text-sm text-orange-400/90 underline-offset-4 transition-colors duration-150 hover:text-orange-300 hover:underline"
-                    >
-                      {link.label}
-                      <ArrowUpRight
-                        className="h-3.5 w-3.5 shrink-0"
-                        aria-hidden="true"
-                      />
-                    </a>
-                  ))}
-                </div>
-              )}
-
-              {entry.gallery && entry.gallery.length > 0 && (
-                <div className="mt-5">
-                  <PhotoCarousel photos={entry.gallery} />
-                </div>
-              )}
-
-              {entry.document && (
-                <div className="mt-5">
-                  <DocumentPreview doc={entry.document} />
-                </div>
-              )}
-
-              {entry.stats && entry.stats.length > 0 && (
-                <div className="mt-6 flex flex-wrap gap-3">
-                  {entry.stats.map((stat) => (
-                    <div
-                      key={stat.label}
-                      className="flex min-w-[8rem] flex-1 flex-col rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3"
-                    >
-                      <span className="text-2xl font-medium text-white">
-                        {stat.value}
-                      </span>
-                      <span className={`mt-0.5 ${DIALOG_LABEL}`}>
-                        {stat.label}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {entry.groups?.map((group) => (
-                <div key={group.label} className="mt-6">
-                  <h4 className={DIALOG_LABEL}>{group.label}</h4>
-
-                  {group.as === "list" ? (
-                    <ul className="mt-3 flex flex-col gap-2">
-                      {group.items.map((item, i) => (
-                        <li
-                          key={i}
-                          className="flex gap-2.5 text-sm leading-[1.6] text-white/70"
-                        >
-                          {/* Own element rather than a list marker: `list-disc`
-                              can't be colour-matched to the accent. */}
-                          <span
-                            aria-hidden="true"
-                            className="mt-2 h-1 w-1 shrink-0 rounded-full bg-orange-400/70"
-                          />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {group.items.map((item, i) => (
-                        <span key={i} className={TAG_CLASS}>
-                          {item}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* After the groups, deliberately: the work only means something
-                  once you know what the role was. */}
-              {entry.works && entry.works.length > 0 && (
-                <WorkSamples works={entry.works} />
-              )}
-
-              {entry.tags.length > 0 && (
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {entry.tags.map((tag, i) => (
-                    <span key={i} className={TAG_CLASS}>
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {entry.note && (
-                <p className="mt-6 border-t border-white/[0.08] pt-4 text-xs leading-relaxed text-white/35 italic">
-                  {entry.note}
-                </p>
-              )}
+              <EntryDetail entry={entry} emphasis={emphasis} morph />
             </div>
 
             {/* The button is pinned to the panel while the body scrolls
@@ -771,6 +968,362 @@ function EntryCard({
         </MorphingDialogContainer>
       </MorphingDialog>
     </article>
+  );
+}
+
+/** Shared with EntryBlock, so a category heading matches every other label. */
+const BLOCK_LABEL =
+  "mb-4 text-sm font-normal tracking-[0.14em] text-white/40 uppercase";
+
+/**
+ * Category panel footprint — the two knobs worth tuning, kept together.
+ *
+ * `max-w` caps the panel at roughly 40% of the section's own max-w-6xl, so it
+ * reads as a deliberate column rather than a full-bleed banner. Below that
+ * width the cap does nothing and the panel is simply fluid, which is what
+ * keeps it correct on a phone.
+ */
+const PANEL_WIDTH = "w-full shrink-0 sm:max-w-[29rem]";
+/**
+ * Applied to the trigger itself, not its contents, so the number is the panel's
+ * real height rather than a figure with padding still to be added.
+ *
+ * A rem floor rather than a vh one: at strip height a viewport-relative value
+ * would make the panel a different shape on a laptop than on a monitor for no
+ * gain. This just keeps the three even when one carries two logos and the
+ * others carry one.
+ */
+const PANEL_MIN_HEIGHT = "min-h-[6.125rem]";
+
+/**
+ * One category of work experience: a tall, full-width panel that opens into the
+ * roles it holds.
+ *
+ * The face carries the category rather than any single employer, which is the
+ * point — it stops four roles reading as four disconnected jobs and presents
+ * them as three threads. Roles inside are reached by tab rather than by a
+ * nested dialog: a dialog opened from inside a dialog has nowhere to morph back
+ * to, and stacking two scrim layers traps focus.
+ */
+function WorkCategoryBlock({
+  label,
+  entries,
+  caption,
+}: {
+  label: WorkCategory;
+  entries: Entry[];
+  caption?: string;
+}) {
+  const [active, setActive] = useState(0);
+  // Guards against a category whose roles were all retagged away: without it
+  // the dialog would render undefined and take the page down.
+  if (entries.length === 0) return null;
+  const current = entries[Math.min(active, entries.length - 1)];
+  const orgs = entries.map((entry) => entry.org).join("  ·  ");
+
+  return (
+    // Reopening a category always starts on its first role. Without this the
+    // tab you last looked at is still selected the next time the panel opens,
+    // so clicking "Accounting" lands on the second firm with nothing on screen
+    // explaining why.
+    //
+    // Capture phase on the wrapper, which only ever contains the trigger: the
+    // dialog — tab bar included — portals to document.body, so a tab click is
+    // not a descendant of this element and cannot reset the state it just set.
+    <article className={PANEL_WIDTH} onClickCapture={() => setActive(0)}>
+      <MorphingDialog
+        transition={{ type: "spring", stiffness: 200, damping: 24 }}
+      >
+        <MorphingDialogTrigger
+          className={`group block w-full ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6`}
+        >
+          {/* Reads across rather than down: the category and its firms hold the
+              left, the logos and the affordance the right. Stacked, the same
+              content needed twice the height for no extra information.
+
+              Below `sm` it does stack — at phone width a row would crush the
+              category name to two or three characters per line. */}
+          <div className="flex h-full flex-col justify-between gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+            <div className="min-w-0">
+              <p className="text-xs font-normal tracking-wide text-white/45">
+                {entries.length === 1 ? "1 role" : `${entries.length} roles`}
+              </p>
+
+              <MorphingDialogTitle className="mt-1 text-2xl leading-[1.15] font-medium tracking-[-0.02em] text-white">
+                {label}
+              </MorphingDialogTitle>
+              <MorphingDialogSubtitle className="mt-1 truncate text-sm text-orange-400/80">
+                {orgs}
+              </MorphingDialogSubtitle>
+            </div>
+
+            <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-end">
+              <div className="flex items-center gap-2.5">
+                {entries.map((entry, i) => (
+                  <EntryLogo
+                    key={i}
+                    entry={entry}
+                    size="h-10 w-10"
+                    label={entry.org}
+                    Image={PlainImage}
+                  />
+                ))}
+              </div>
+
+              <ArrowUpRight
+                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white/85"
+                aria-hidden="true"
+              />
+            </div>
+          </div>
+        </MorphingDialogTrigger>
+
+        <MorphingDialogContainer>
+          <MorphingDialogContent className="relative w-full max-w-lg rounded-xl border border-white/[0.14] bg-[#1f130b]">
+            <div className="max-h-[85vh] overflow-y-auto p-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <MorphingDialogTitle className="pr-8 text-3xl font-medium tracking-[-0.02em] text-white">
+                {label}
+              </MorphingDialogTitle>
+              <MorphingDialogSubtitle className="mt-1 text-sm text-orange-400/80">
+                {orgs}
+              </MorphingDialogSubtitle>
+
+              {/* One role needs no chooser — the tab bar would be a control
+                  with nothing to switch between. */}
+              {entries.length > 1 && (
+                <div
+                  role="tablist"
+                  aria-label={`${label} roles`}
+                  className="mt-6 flex flex-wrap gap-2"
+                >
+                  {entries.map((entry, i) => {
+                    const selected = i === active;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        role="tab"
+                        aria-selected={selected}
+                        onClick={() => setActive(i)}
+                        className={`min-h-[40px] rounded-lg border px-3.5 py-2 text-sm transition-[background-color,border-color,color] duration-200 ${
+                          selected
+                            ? "border-white/[0.28] bg-white/[0.12] text-white"
+                            : "border-white/[0.12] bg-white/[0.04] text-white/60 hover:border-white/[0.22] hover:text-white/85"
+                        }`}
+                      >
+                        {entry.org}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              <div className="mt-7 border-t border-white/[0.08] pt-7">
+                <EntryDetail entry={current} emphasis="org" />
+              </div>
+            </div>
+
+            <MorphingDialogClose className="top-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.10] bg-[#1f130b]/85 text-white/60 backdrop-blur-sm transition-colors duration-200 hover:border-white/25 hover:text-white" />
+          </MorphingDialogContent>
+        </MorphingDialogContainer>
+      </MorphingDialog>
+
+      {caption && (
+        <p className="mt-2.5 pl-1 text-xs text-white/35 italic">{caption}</p>
+      )}
+    </article>
+  );
+}
+
+/**
+ * A certification hanging off a work category — deliberately smaller than a
+ * category strip so the hierarchy reads without a caption: the role is the
+ * subject, the credential is supporting evidence.
+ *
+ * Its own MorphingDialog rather than something nested inside the category's.
+ * It sits OUTSIDE the category trigger in the DOM, so the two never collide,
+ * and a dialog opened from inside another dialog has nowhere to morph back to.
+ */
+function CertBranchStrip({ entry }: { entry: Entry }) {
+  return (
+    <MorphingDialog
+      transition={{ type: "spring", stiffness: 200, damping: 24 }}
+    >
+      <MorphingDialogTrigger className="group flex w-full items-center gap-3 rounded-lg border border-white/[0.10] bg-white/[0.03] px-3.5 py-2.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.20] hover:bg-white/[0.07]">
+        <EntryLogo entry={entry} size="h-8 w-8" label={entry.title} />
+
+        <span className="min-w-0 flex-1">
+          {/* line-clamp rather than truncate: "Financial Modeling Fundamentals
+              and Corporate Valuation" loses its meaning cut to one line. */}
+          <MorphingDialogTitle className="line-clamp-2 text-[0.8125rem] leading-[1.35] font-medium text-white/90">
+            {entry.shortTitle ?? entry.title}
+          </MorphingDialogTitle>
+          <MorphingDialogSubtitle className="mt-0.5 truncate text-xs text-white/45">
+            {entry.org}
+          </MorphingDialogSubtitle>
+        </span>
+
+        <ArrowUpRight
+          className="h-3.5 w-3.5 shrink-0 text-white/30 transition-colors duration-150 group-hover:text-white/70"
+          aria-hidden="true"
+        />
+      </MorphingDialogTrigger>
+
+      <MorphingDialogContainer>
+        <MorphingDialogContent className="relative w-full max-w-lg rounded-xl border border-white/[0.14] bg-[#1f130b]">
+          <div className="max-h-[85vh] overflow-y-auto p-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <EntryDetail entry={entry} morph />
+          </div>
+
+          <MorphingDialogClose className="top-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.10] bg-[#1f130b]/85 text-white/60 backdrop-blur-sm transition-colors duration-200 hover:border-white/25 hover:text-white" />
+        </MorphingDialogContent>
+      </MorphingDialogContainer>
+    </MorphingDialog>
+  );
+}
+
+/**
+ * The certifications branching off one category.
+ *
+ * The connector — a vertical rule with a stub into each strip — is drawn from
+ * `sm` up ONLY. Below that the row stacks, the branch lands underneath the
+ * category rather than beside it, and a line pointing rightward would point at
+ * nothing. Stacked, the relationship is carried by a label and indentation
+ * instead: same meaning, no geometry to break.
+ */
+/**
+ * Everything hanging off one category panel: the certifications it produced,
+ * and the skills the work itself built. Either tier can be absent.
+ *
+ * With certifications present the skills sit to their RIGHT, on a stub taken
+ * from the vertical middle of the pair — stacked underneath they cost another
+ * 70px of height for a few short words, alongside they fill space the row
+ * already occupied. With no certifications (Accounting) the skills take the
+ * certificate column's place and hang straight off the panel, rather than
+ * leaving an empty column and a rule with nothing on it.
+ *
+ * That right-hand placement does risk reading as "the certificates taught
+ * these", which is not where they came from — the label carries the
+ * correction, which is why it stays even though dropping it would save a line.
+ *
+ * Connectors are drawn from `sm` up ONLY. Below that the row stacks, the branch
+ * lands underneath the category rather than beside it, and a line pointing
+ * rightward would point at nothing. Stacked, the relationship is carried by
+ * labels and indentation instead: same meaning, no geometry to break.
+ */
+function CategoryBranch({
+  items,
+  skills,
+}: {
+  items: Entry[];
+  skills: string[];
+}) {
+  const hasCerts = items.length > 0;
+
+  return (
+    <div className="mt-1 sm:mt-0 sm:flex sm:min-w-0 sm:flex-1 sm:items-center">
+      {hasCerts && (
+        <div className="flex w-full flex-col gap-3 border-white/[0.14] pl-4 sm:w-[22rem] sm:shrink-0 sm:border-l sm:pl-8">
+          <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase sm:hidden">
+            Certified through this
+          </p>
+
+          {items.map((entry, i) => (
+            <div key={i} className="relative">
+              {/* Stub from the vertical rule into this strip. Width matches the
+                  `sm:pl-8` above, so the two always meet. */}
+              <span
+                aria-hidden="true"
+                className="absolute top-1/2 -left-8 hidden h-px w-8 bg-white/[0.14] sm:block"
+              />
+              <CertBranchStrip entry={entry} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {skills.length > 0 && (
+        <div
+          className={`relative pl-4 sm:pl-8 ${
+            hasCerts
+              ? "mt-4 sm:mt-0"
+              : // No certificate column to sit beside, so this tier owns the
+                // rule descending from the panel.
+                "mt-1 border-white/[0.14] sm:mt-0 sm:max-w-[26rem] sm:border-l"
+          }`}
+        >
+          {/* One stub for the set, taken at the vertical centre of the row.
+              Separate lines into each loose word read as noise; a single line
+              into a labelled group reads as one branch, which is what it is. */}
+          <span
+            aria-hidden="true"
+            className="absolute top-1/2 left-0 hidden h-px w-8 bg-white/[0.14] sm:block"
+          />
+
+          <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase">
+            What the work built
+          </p>
+
+          <div className="mt-2 flex max-w-[22rem] flex-wrap gap-1.5">
+            {/* Static labels, not triggers: there is nothing behind a skill to
+                open, and styling them like the strips would promise a dialog
+                that does not exist. */}
+            {skills.map((skill) => (
+              <span
+                key={skill}
+                className="rounded-md border border-white/[0.09] bg-white/[0.02] px-2.5 py-1 text-xs text-white/50"
+              >
+                {skill}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A run of category panels with their branches.
+ *
+ * A grid with `auto-rows-fr` from `sm` up, not a flex column. The rows are
+ * different heights — Finance's certificate column overhangs its panel, Venture
+ * Capital has nothing beside it — and with a plain flex gap the space between
+ * PANELS then varied, because the gap sits between rows while the eye measures
+ * between panels. `auto-rows-fr` sizes every row to the tallest in its stack,
+ * so the rhythm stays even whatever any one branch contains, and it corrects
+ * itself as content changes where a hand-tuned margin would not.
+ *
+ * Mobile stays a flex column: there the rows differ by hundreds of pixels, and
+ * equalising them would pad the short ones with dead space.
+ */
+function CategoryStack({
+  categories,
+}: {
+  categories: (typeof WORK_CATEGORIES)[number][];
+}) {
+  return (
+    <div className="flex flex-col gap-6 sm:grid sm:auto-rows-fr">
+      {categories.map((category) => (
+        <div
+          key={category.label}
+          className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-0"
+        >
+          <WorkCategoryBlock
+            label={category.label}
+            entries={category.entries}
+            caption={category.caption}
+          />
+
+          {(category.branches.length > 0 || category.skills.length > 0) && (
+            <CategoryBranch
+              items={category.branches}
+              skills={category.skills}
+            />
+          )}
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -841,9 +1394,7 @@ function EntryBlock({
 }) {
   return (
     <div className="flex h-full flex-col">
-      <h3 className="mb-4 text-sm font-normal tracking-[0.14em] text-white/40 uppercase">
-        {label}
-      </h3>
+      <h3 className={BLOCK_LABEL}>{label}</h3>
 
       {/*
         The scroller is `absolute inset-0`, so it fills the block without
@@ -878,19 +1429,33 @@ export default function Journey() {
       title="The opportunities grabbed and given."
       lede={<em>And this is only the beginning</em>}
     >
-      <div className="grid gap-6 lg:grid-cols-2 lg:gap-8">
-        <Reveal standalone>
-          <EntryBlock label="Work Experience">
-            <LoopingEntries entries={WORK_EXPERIENCE} emphasis="org" />
-          </EntryBlock>
-        </Reveal>
+      {/* Work Experience runs full width, one panel per category, stacked.
+          Deliberately not in the two-column grid below: these panels are the
+          section's opening statement, and a half-height panel squeezed into a
+          column reads as just another widget. */}
+      <Reveal standalone>
+        {/* Picks up the hero's "shooting strategic shots" — the roles below are
+            the ones that landed. */}
+        {/* Picks up the hero's "shooting strategic shots" — the roles below
+            are the ones that landed. */}
+        <h3 className={BLOCK_LABEL}>Successful Shots</h3>
+        <CategoryStack categories={LANDED_CATEGORIES} />
 
-        <Reveal standalone>
-          <EntryBlock label="Projects">
-            <LoopingEntries entries={PROJECTS} />
-          </EntryBlock>
-        </Reveal>
-      </div>
+        {/* Set apart rather than listed with the rest: this one has not started,
+            and the separation is what keeps "Successful Shots" honest. */}
+        {AIMING_CATEGORIES.length > 0 && (
+          <div className="mt-12">
+            <h3 className={BLOCK_LABEL}>Currently aiming at</h3>
+            <CategoryStack categories={AIMING_CATEGORIES} />
+          </div>
+        )}
+      </Reveal>
+
+      <Reveal standalone className="mt-6 lg:mt-8">
+        <EntryBlock label="Projects">
+          <LoopingEntries entries={PROJECTS} />
+        </EntryBlock>
+      </Reveal>
 
       {/* Second row, mirroring the first. Both blocks loop, so neither has an
           intrinsic height — `minHeight` is what sizes the row, set to one card
@@ -902,7 +1467,7 @@ export default function Journey() {
             minHeight="min-h-[278px]"
             blurHeight="26%"
           >
-            <LoopingEntries entries={CERTIFICATIONS} />
+            <LoopingEntries entries={UNBRANCHED_CERTIFICATIONS} />
           </EntryBlock>
         </Reveal>
 
