@@ -377,7 +377,14 @@ const CERTIFICATIONS: Entry[] = [
  * A category with no entry here renders no skills tier.
  */
 const CATEGORY_SKILLS: Partial<Record<WorkCategory, string[]>> = {
-  Finance: ["Forecasting", "Analytics", "Research", "Narration"],
+  Finance: [
+    "Forecasting",
+    "Analytics",
+    "Research",
+    "Narration",
+    "Portfolio Management",
+  ],
+  "Venture Capital": ["Cold Outreach", "Investment Risk", "Due Diligence"],
   Accounting: [
     "Client Communication",
     "Compliance",
@@ -1214,9 +1221,16 @@ function CertBranchStrip({ entry }: { entry: Entry }) {
 function CategoryBranch({
   items,
   skills,
+  skillsLabel,
 }: {
   items: Entry[];
   skills: string[];
+  /**
+   * Past or future tense, chosen by the category's stage. A role starting in
+   * September has not built anything yet, and saying it did would undo the
+   * point of separating "Currently aiming at" in the first place.
+   */
+  skillsLabel: string;
 }) {
   const hasCerts = items.length > 0;
 
@@ -1261,7 +1275,7 @@ function CategoryBranch({
           />
 
           <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase">
-            What the work built
+            {skillsLabel}
           </p>
 
           <div className="mt-2 flex max-w-[22rem] flex-wrap gap-1.5">
@@ -1319,6 +1333,11 @@ function CategoryStack({
             <CategoryBranch
               items={category.branches}
               skills={category.skills}
+              skillsLabel={
+                category.stage === "aiming"
+                  ? "What the work is building"
+                  : "What the work built"
+              }
             />
           )}
         </div>
