@@ -2,7 +2,7 @@ import { Fragment, useState, type ReactNode } from "react";
 // ArrowUpRight means "this leaves the site" and is kept for genuine outbound
 // links. Dialog triggers take ArrowRight instead: they open a panel in place,
 // and a diagonal there promises a navigation that never happens.
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight, ChevronDown } from "lucide-react";
 import Section, { Reveal } from "@/components/section";
 import { ProgressiveBlur } from "@/components/blocks/progressive-blur";
 import AutoScroller from "@/components/auto-scroller";
@@ -1104,7 +1104,7 @@ const PANEL_WIDTH = "w-full shrink-0 sm:max-w-[29rem]";
  * gain. This just keeps the three even when one carries two logos and the
  * others carry one.
  */
-const PANEL_MIN_HEIGHT = "min-h-[6.125rem]";
+const PANEL_MIN_HEIGHT = "min-h-[5rem] sm:min-h-[6.125rem]";
 
 /**
  * One category of work experience: a tall, full-width panel that opens into the
@@ -1146,35 +1146,38 @@ function WorkCategoryBlock({
         transition={{ type: "spring", stiffness: 200, damping: 24 }}
       >
         <MorphingDialogTrigger
-          className={`group block w-full ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6`}
+          className={`group block w-full ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6 sm:py-3.5`}
         >
           {/* Reads across rather than down: the category and its firms hold the
               left, the logos and the affordance the right. Stacked, the same
               content needed twice the height for no extra information.
 
-              Below `sm` it does stack — at phone width a row would crush the
-              category name to two or three characters per line. */}
-          <div className="flex h-full flex-col justify-between gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+              This used to stack below `sm`, on the grounds that a row would
+              crush the category name. That was true at the old sizes; with the
+              title at 20px and the logos at 32 the row fits, and dropping the
+              second line is worth roughly 45px on every strip. The subtitle
+              truncates instead — it already did at desktop widths. */}
+          <div className="flex h-full items-center justify-between gap-3 sm:gap-8">
             <div className="min-w-0">
               <p className="text-xs font-normal tracking-wide text-white/45">
                 {entries.length === 1 ? "1 role" : `${entries.length} roles`}
               </p>
 
-              <MorphingDialogTitle className="mt-1 text-2xl leading-[1.15] font-medium tracking-[-0.02em] text-white">
+              <MorphingDialogTitle className="mt-0.5 text-xl leading-[1.15] font-medium tracking-[-0.02em] text-white sm:mt-1 sm:text-2xl">
                 {label}
               </MorphingDialogTitle>
-              <MorphingDialogSubtitle className="mt-1 truncate text-sm text-orange-400/80">
+              <MorphingDialogSubtitle className="mt-0.5 truncate text-[0.8125rem] text-orange-400/80 sm:mt-1 sm:text-sm">
                 {orgs}
               </MorphingDialogSubtitle>
             </div>
 
-            <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-end">
+            <div className="flex shrink-0 items-center justify-end gap-3 sm:gap-5">
               <div className="flex items-center gap-2.5">
                 {entries.map((entry, i) => (
                   <EntryLogo
                     key={i}
                     entry={entry}
-                    size="h-10 w-10"
+                    size="h-8 w-8 sm:h-10 sm:w-10"
                     label={entry.org}
                     Image={PlainImage}
                   />
@@ -1182,7 +1185,7 @@ function WorkCategoryBlock({
               </div>
 
               <ArrowRight
-                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85"
+                className="h-4 w-4 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85 sm:h-5 sm:w-5"
                 aria-hidden="true"
               />
             </div>
@@ -1243,6 +1246,92 @@ function WorkCategoryBlock({
         <p className="mt-2.5 pl-1 text-xs text-white/35 italic">{caption}</p>
       )}
     </article>
+  );
+}
+
+/**
+ * A branch's contents, folded away below the breakpoint that draws the
+ * connectors.
+ *
+ * Purpose is height. Stacked, every certificate is a 57px strip sitting under
+ * the role it came from, and Journey is already two thirds of the page on a
+ * phone. From `sm`/`lg` up the certificates sit BESIDE the panel in space the
+ * row already occupies, so they cost nothing there and stay open — the toggle
+ * is `hidden` above the breakpoint and the list is forced visible, whatever the
+ * state says. One component, two behaviours, no media query in JS.
+ *
+ * The old plain-text label becomes the button, so the disclosure costs no
+ * height of its own: the words that explained the relationship now also open
+ * it. `min-h-[44px]` is the tap floor — the 11px label plus padding lands at
+ * 37, which is under it.
+ *
+ * Tailwind needs literal class strings, so the two breakpoints are spelled out
+ * rather than interpolated.
+ */
+function BranchDisclosure({
+  label,
+  count,
+  breakpoint,
+  contentClass = "flex flex-col gap-3",
+  keepLabel = false,
+  children,
+}: {
+  label: string;
+  count: number;
+  breakpoint: "sm" | "lg";
+  /**
+   * Layout for the revealed contents. The wrapper below controls visibility
+   * only, so a caller can lay its children out however it likes — strips stack,
+   * skill pills wrap into rows — without this component knowing which.
+   */
+  contentClass?: string;
+  /**
+   * Whether the label survives above the breakpoint as plain text.
+   *
+   * The certificate branches don't need it — the drawn connector says what the
+   * strips hang off. The skills branches do: they sit to the RIGHT of the
+   * certificates, which reads as "the certificates taught these" unless the
+   * label corrects it. Folding that label into a mobile-only button silently
+   * deleted it from desktop, which is the bug this prop exists to prevent.
+   */
+  keepLabel?: boolean;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const hideButton = breakpoint === "sm" ? "sm:hidden" : "lg:hidden";
+  const forceOpen = breakpoint === "sm" ? "hidden sm:block" : "hidden lg:block";
+  const labelClass =
+    "text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase";
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className={`group flex min-h-[44px] w-full items-center gap-2 py-2.5 text-left ${hideButton}`}
+      >
+        <span className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase">
+          {label}
+        </span>
+        <span className="text-[0.6875rem] text-white/25">({count})</span>
+        <ChevronDown
+          className={`h-3.5 w-3.5 shrink-0 text-white/30 transition-transform duration-200 group-hover:text-white/60 ${
+            open ? "rotate-180" : ""
+          }`}
+          aria-hidden="true"
+        />
+      </button>
+
+      {keepLabel && (
+        <p className={`${forceOpen} ${labelClass}`}>{label}</p>
+      )}
+
+      <div className={open ? "block" : forceOpen}>
+        <div className={contentClass}>{children}</div>
+      </div>
+    </>
   );
 }
 
@@ -1339,24 +1428,26 @@ function CategoryBranch({
   const hasCerts = items.length > 0;
 
   return (
-    <div className="mt-1 sm:mt-0 sm:flex sm:min-w-0 sm:flex-1 sm:items-center">
+    <div className="sm:flex sm:min-w-0 sm:flex-1 sm:items-center">
       {hasCerts && (
-        <div className="flex w-full flex-col gap-3 border-white/[0.14] pl-4 sm:w-[22rem] sm:shrink-0 sm:border-l sm:pl-8">
-          <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase sm:hidden">
-            Certified through this
-          </p>
-
-          {items.map((entry, i) => (
-            <div key={i} className="relative">
-              {/* Stub from the vertical rule into this strip. Width matches the
-                  `sm:pl-8` above, so the two always meet. */}
-              <span
-                aria-hidden="true"
-                className="absolute top-1/2 -left-8 hidden h-px w-8 bg-white/[0.14] sm:block"
-              />
-              <CertBranchStrip entry={entry} />
-            </div>
-          ))}
+        <div className="flex w-full flex-col border-white/[0.14] pl-4 sm:w-[22rem] sm:shrink-0 sm:gap-3 sm:border-l sm:pl-8">
+          <BranchDisclosure
+            label="Certified through this"
+            count={items.length}
+            breakpoint="sm"
+          >
+            {items.map((entry, i) => (
+              <div key={i} className="relative">
+                {/* Stub from the vertical rule into this strip. Width matches
+                    the `sm:pl-8` above, so the two always meet. */}
+                <span
+                  aria-hidden="true"
+                  className="absolute top-1/2 -left-8 hidden h-px w-8 bg-white/[0.14] sm:block"
+                />
+                <CertBranchStrip entry={entry} />
+              </div>
+            ))}
+          </BranchDisclosure>
         </div>
       )}
 
@@ -1364,7 +1455,7 @@ function CategoryBranch({
         <div
           className={`relative pl-4 sm:pl-8 ${
             hasCerts
-              ? "mt-4 sm:mt-0"
+              ? "sm:mt-0"
               : // No certificate column to sit beside, so this tier owns the
                 // rule descending from the panel.
                 "mt-1 border-white/[0.14] sm:mt-0 sm:max-w-[26rem] sm:border-l"
@@ -1378,11 +1469,13 @@ function CategoryBranch({
             className="absolute top-1/2 left-0 hidden h-px w-8 bg-white/[0.14] sm:block"
           />
 
-          <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase">
-            {skillsLabel}
-          </p>
-
-          <div className="mt-2 flex max-w-[22rem] flex-wrap gap-1.5">
+          <BranchDisclosure
+            label={skillsLabel}
+            count={skills.length}
+            breakpoint="sm"
+            contentClass="mt-2 flex max-w-[22rem] flex-wrap gap-1.5"
+            keepLabel
+          >
             {/* Static labels, not triggers: there is nothing behind a skill to
                 open, and styling them like the strips would promise a dialog
                 that does not exist. */}
@@ -1394,7 +1487,7 @@ function CategoryBranch({
                 {skill}
               </span>
             ))}
-          </div>
+          </BranchDisclosure>
         </div>
       )}
     </div>
@@ -1439,9 +1532,17 @@ function EntryStrip({ entry }: { entry: Entry }) {
         transition={{ type: "spring", stiffness: 200, damping: 24 }}
       >
         <MorphingDialogTrigger
-          className={`group block w-full shrink-0 ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-5 py-3.5 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6`}
+          className={`group block w-full shrink-0 ${PANEL_MIN_HEIGHT} rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08] sm:px-6 sm:py-3.5`}
         >
-          <div className="flex h-full flex-col justify-between gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+          {/* One row at every width, logos in the top-right corner.
+
+              The projects carry three tool tiles where a category carries one
+              logo, so the right-hand group had to come down to 20px tiles and
+              the title to 18px before the text had room — at the category
+              sizes "Portfolio Tracker" wrapped to two lines. The subtitle
+              truncates on a phone as a result; that is the trade the second
+              line was costing. */}
+          <div className="flex h-full items-center justify-between gap-2.5 sm:gap-8">
             <div className="min-w-0">
               {entry.period && (
                 <p className="text-xs font-normal tracking-wide text-white/45">
@@ -1450,28 +1551,28 @@ function EntryStrip({ entry }: { entry: Entry }) {
               )}
 
               <MorphingDialogTitle
-                className={`text-2xl leading-[1.15] font-medium tracking-[-0.02em] text-white ${
-                  entry.period ? "mt-1" : ""
+                className={`text-lg leading-[1.15] font-medium tracking-[-0.02em] text-white sm:text-2xl ${
+                  entry.period ? "mt-0.5 sm:mt-1" : ""
                 }`}
               >
                 {entry.shortTitle ?? entry.title}
               </MorphingDialogTitle>
-              <MorphingDialogSubtitle className="mt-1 truncate text-sm text-orange-400/80">
+              <MorphingDialogSubtitle className="mt-0.5 truncate text-[0.8125rem] text-orange-400/80 sm:mt-1 sm:text-sm">
                 {entry.org}
               </MorphingDialogSubtitle>
             </div>
 
-            <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
+            <div className="flex shrink-0 items-center justify-end gap-2.5 sm:gap-4">
               {entry.tools && entry.tools.length > 0 ? (
                 // Three marks where one logo would go, so a step smaller than
                 // the single-logo tiles or the row crowds the subtitle beside
                 // it. `alt` names each tool: unlike an organisation's logo,
                 // nothing else on the strip says what these are.
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 sm:gap-1">
                   {entry.tools.map((tool) => (
                     <div
                       key={tool.src}
-                      className={`${LOGO_FRAME} ${LOGO_FRAME_IMAGE} h-6 w-6`}
+                      className={`${LOGO_FRAME} ${LOGO_FRAME_IMAGE} h-[1.125rem] w-[1.125rem] sm:h-6 sm:w-6`}
                     >
                       <img
                         src={tool.src}
@@ -1484,14 +1585,14 @@ function EntryStrip({ entry }: { entry: Entry }) {
               ) : (
                 <EntryLogo
                   entry={entry}
-                  size="h-9 w-9"
+                  size="h-8 w-8 sm:h-9 sm:w-9"
                   label={entry.title}
                   Image={PlainImage}
                 />
               )}
 
               <ArrowRight
-                className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85"
+                className="h-4 w-4 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85 sm:h-5 sm:w-5"
                 aria-hidden="true"
               />
             </div>
@@ -1528,7 +1629,7 @@ function EntryStrip({ entry }: { entry: Entry }) {
 function IdeaStrip({ title, org }: { title: string; org: string }) {
   return (
     <article
-      className={`w-full ${PANEL_MIN_HEIGHT} flex min-w-0 flex-col justify-center rounded-xl border border-white/[0.10] bg-white/[0.02] px-5 py-3.5 sm:flex-1`}
+      className={`w-full ${PANEL_MIN_HEIGHT} flex min-w-0 flex-col justify-center rounded-xl border border-white/[0.10] bg-white/[0.02] px-4 py-3 sm:flex-1 sm:px-5 sm:py-3.5`}
     >
       <h4 className="text-base leading-[1.3] font-medium tracking-[-0.01em] text-balance text-white/80 lg:text-lg">
         {title}
@@ -1603,7 +1704,7 @@ function CategoryStack({
       {categories.map((category) => (
         <div
           key={category.label}
-          className="flex flex-col gap-3 sm:flex-row sm:items-stretch sm:gap-0"
+          className="flex flex-col gap-1 sm:flex-row sm:items-stretch sm:gap-0"
         >
           <WorkCategoryBlock
             label={category.label}
@@ -1776,11 +1877,13 @@ export default function Journey() {
           labels carry the relationships, since a connector drawn between
           columns points at nothing once those columns become rows.
         */}
-        <div className="flex flex-col gap-6 lg:grid lg:auto-rows-fr lg:grid-cols-[minmax(0,31rem)_minmax(0,21rem)_minmax(0,1fr)] lg:gap-y-6">
+        <div className="flex flex-col gap-1 lg:grid lg:auto-rows-fr lg:grid-cols-[minmax(0,31rem)_minmax(0,21rem)_minmax(0,1fr)] lg:gap-x-6 lg:gap-y-6">
           {PROJECTS.map((entry, i) => (
             <Fragment key={i}>
               <div
-                className="relative lg:col-start-1 lg:pr-8"
+                className={`relative lg:col-start-1 lg:mt-0 lg:pr-8 ${
+                  i > 0 ? "mt-5" : ""
+                }`}
                 style={{ gridRow: i + 1 }}
               >
                 <EntryStrip entry={entry} />
@@ -1793,7 +1896,7 @@ export default function Journey() {
 
               {entry.skills && entry.skills.length > 0 && (
                 <div
-                  className="relative mt-3 pl-4 lg:col-start-2 lg:col-end-4 lg:mt-0 lg:flex lg:items-center lg:pl-[23rem]"
+                  className="relative pl-4 lg:col-start-2 lg:col-end-4 lg:flex lg:items-center lg:pl-[23rem]"
                   style={{ gridRow: i + 1 }}
                 >
                   {/* Runs from the rail, straight across the certificates'
@@ -1811,11 +1914,13 @@ export default function Journey() {
                     {/* "introduced", not "built": these are self-directed, and
                         the skills below were new rather than sharpened. The
                         work categories keep "built" for the same reason. */}
-                    <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase">
-                      What the work introduced
-                    </p>
-
-                    <div className="mt-2 flex max-w-[16rem] flex-wrap gap-1.5">
+                    <BranchDisclosure
+                      label="What the work introduced"
+                      count={entry.skills.length}
+                      breakpoint="lg"
+                      contentClass="mt-2 flex max-w-[16rem] flex-wrap gap-1.5"
+                      keepLabel
+                    >
                       {entry.skills.map((skill) => (
                         <span
                           key={skill}
@@ -1824,7 +1929,7 @@ export default function Journey() {
                           {skill}
                         </span>
                       ))}
-                    </div>
+                    </BranchDisclosure>
                   </div>
                 </div>
               )}
@@ -1833,26 +1938,28 @@ export default function Journey() {
 
           {PROJECT_CERTIFICATIONS.length > 0 && (
             <div
-              className="relative mt-3 lg:col-start-2 lg:mt-0 lg:flex lg:items-center lg:border-l lg:border-white/[0.14] lg:pl-8"
+              className="relative mt-5 lg:col-start-2 lg:mt-0 lg:flex lg:items-center lg:border-l lg:border-white/[0.14] lg:pl-8"
               // `1 / -1` does NOT work here: with no explicit grid-template-rows
               // there is no last explicit line for -1 to name, so it collapsed
               // to row 1 and the certificates sat beside the first project
               // instead of centred against all of them.
               style={{ gridRow: `1 / span ${PROJECTS.length}` }}
             >
-              <p className="mb-2 text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase lg:hidden">
-                What made all three possible
-              </p>
-
               <span
                 aria-hidden="true"
                 className="absolute top-1/2 left-0 hidden h-px w-8 bg-white/[0.14] lg:block"
               />
 
-              <div className="flex w-full flex-col gap-2 pl-4 lg:pl-0">
-                {PROJECT_CERTIFICATIONS.map((entry, i) => (
-                  <CertBranchStrip key={i} entry={entry} />
-                ))}
+              <div className="flex w-full flex-col pl-4 lg:pl-0">
+                <BranchDisclosure
+                  label="What made all three possible"
+                  count={PROJECT_CERTIFICATIONS.length}
+                  breakpoint="lg"
+                >
+                  {PROJECT_CERTIFICATIONS.map((entry, i) => (
+                    <CertBranchStrip key={i} entry={entry} />
+                  ))}
+                </BranchDisclosure>
               </div>
             </div>
           )}
