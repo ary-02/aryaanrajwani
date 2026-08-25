@@ -304,13 +304,21 @@ const PROJECTS: Entry[] = [
     // Middots rather than semicolons, matching the Accounting strip's
     // "Doane Grant Thornton · G&R CPA" — the strips all separate this line the
     // same way.
-    org: "Personal Project · Claude Coded · Live Demo",
+    org: "Personal Project · Claude Coded · Live",
     caption: "Personal use case oriented project",
-    skills: ["MCP tooling", "Schema design", "Access control", "Web design"],
+    skills: [
+      "MCP tooling",
+      "Schema design",
+      "Access control",
+      "Web design",
+      "CLAUDE.md",
+    ],
     tools: [
       { src: "/logos/tools/vercel.svg", alt: "Vercel" },
       { src: "/logos/tools/supabase.svg", alt: "Supabase" },
       { src: "/logos/tools/notion.png", alt: "Notion" },
+
+      { src: "/logos/tools/claude.svg", alt: "Claude" },
     ],
     blurb: "",
     tags: [],
@@ -321,13 +329,41 @@ const PROJECTS: Entry[] = [
     shortTitle: "Auto DCF Builder",
     org: "Personal Project · Claude Coded · Live",
     caption: "One of many automation ideas but this one felt natural to me",
+    skills: [
+      "Version Control",
+      "Python Workflow",
+      "Cache Classification",
+      "Custom SKILL.md",
+    ],
+    tools: [
+      { src: "/logos/tools/render.svg", alt: "Render" },
+      { src: "/logos/tools/supabase.svg", alt: "Supabase" },
+      { src: "/logos/tools/notion.png", alt: "Notion" },
+
+      { src: "/logos/tools/claude.svg", alt: "Claude" },
+    ],
     blurb: "",
     tags: ["Beta"],
   },
   {
     period: "August 2026",
     title: "Aryaan Rajwani's Website",
+    // Face label only — three tool marks pushed the full title onto a second
+    // line, which made this card taller than its neighbours. The dialog still
+    // carries the full name, and "Aryaan Rajwani / This website" reads fine.
+    shortTitle: "Aryaan Rajwani",
     org: "This website",
+    caption: "To grasp web design and the use of open source code",
+    skills: [
+      "UX/UI Motion Design",
+      "Open Source Vetting",
+      "Context Management",
+    ],
+    tools: [
+      { src: "/logos/tools/github.svg", alt: "GitHub" },
+      { src: "/logos/tools/vercel.svg", alt: "Vercel" },
+      { src: "/logos/tools/claude.svg", alt: "Claude" },
+    ],
     blurb: "",
     tags: ["React", "TypeScript", "Tailwind"],
   },
