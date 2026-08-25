@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { Fragment, useState, type ReactNode } from "react";
 // ArrowUpRight means "this leaves the site" and is kept for genuine outbound
 // links. Dialog triggers take ArrowRight instead: they open a panel in place,
 // and a diagonal there promises a navigation that never happens.
@@ -121,6 +121,12 @@ interface Entry {
    * line that has to be present but must not compete with the content.
    */
   note?: string;
+  /**
+   * What this entry built, shown as a branch off its own strip. Held on the
+   * entry rather than on the group because these belong to one project, not to
+   * the set — the certificates are the thing all three share.
+   */
+  skills?: string[];
   /**
    * An aside under the entry's strip, outside the card. Deliberately quiet —
    * smaller, dimmer and italic — so it reads as a remark rather than as
@@ -293,6 +299,7 @@ const PROJECTS: Entry[] = [
     // same way.
     org: "Personal Project · Claude Coded · Live Demo",
     caption: "Personal use case oriented project",
+    skills: ["MCP tooling", "Schema design", "Access control", "Web design"],
     logo: "/logos/projects/portfolio.png",
     blurb: "",
     tags: [],
@@ -1594,45 +1601,92 @@ export default function Journey() {
       <Reveal standalone className="mt-12">
         <h3 className={BLOCK_LABEL}>Evolving world, evolving shots</h3>
 
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:gap-0">
-          {/*
-            The projects, with a rail down their right edge that every strip
-            reaches. The certificates then take a SINGLE line off the middle of
-            that rail, which is what draws three-into-two rather than six
-            separate lines: the two Claude courses fed all three projects, not
-            any one of them.
+        {/*
+          Three columns from `lg` up: the projects, the certificates they share,
+          and each project's own skills.
 
-            The rail is a border on this container rather than a positioned
-            element, so it spans exactly the projects' height whatever they
-            contain, and each stub is measured against the same `pr-8`.
-          */}
-          <div className="flex flex-col gap-6 sm:grid sm:auto-rows-fr sm:border-r sm:border-white/[0.14] sm:pr-8">
-            {PROJECTS.map((entry, i) => (
-              <div key={i} className="relative">
+          Explicit grid rather than nested flex, because two different things
+          have to line up against the same rows — the certificates sit centred
+          across ALL of them (they fed every project), while a skills group
+          belongs to one project and must sit level with it. Grid places both
+          against the same row track; nested flex could only approximate it.
+
+          `lg` and not `sm`: the three columns need roughly 50rem before they
+          stop crushing each other. Below that the whole thing stacks and
+          labels carry the relationships, since a connector drawn between
+          columns points at nothing once those columns become rows.
+        */}
+        <div className="flex flex-col gap-6 lg:grid lg:auto-rows-fr lg:grid-cols-[minmax(0,31rem)_minmax(0,21rem)_minmax(0,1fr)] lg:gap-y-6">
+          {PROJECTS.map((entry, i) => (
+            <Fragment key={i}>
+              <div
+                className="relative lg:col-start-1 lg:pr-8"
+                style={{ gridRow: i + 1 }}
+              >
                 <EntryStrip entry={entry} />
+                {/* Into the rail that the certificates column carries. */}
                 <span
                   aria-hidden="true"
-                  className="absolute top-1/2 -right-8 hidden h-px w-8 bg-white/[0.14] sm:block"
+                  className="absolute top-1/2 right-0 hidden h-px w-8 bg-white/[0.14] lg:block"
                 />
               </div>
-            ))}
-          </div>
+
+              {entry.skills && entry.skills.length > 0 && (
+                <div
+                  className="relative mt-3 pl-4 lg:col-start-2 lg:col-end-4 lg:mt-0 lg:flex lg:items-center lg:pl-[23rem]"
+                  style={{ gridRow: i + 1 }}
+                >
+                  {/* Runs from the rail, straight across the certificates'
+                      column, to this project's own skills. The certificates are
+                      centred on the middle row, so at any other row this passes
+                      through clear space — the branch belongs to the project,
+                      and the line has to show that it only passes the
+                      certificates rather than starting at them. */}
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-1/2 left-0 hidden h-px w-[23rem] bg-white/[0.14] lg:block"
+                  />
+
+                  <div>
+                    <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase">
+                      What the work built
+                    </p>
+
+                    <div className="mt-2 flex max-w-[16rem] flex-wrap gap-1.5">
+                      {entry.skills.map((skill) => (
+                        <span
+                          key={skill}
+                          className="rounded-md border border-white/[0.09] bg-white/[0.02] px-2.5 py-1 text-xs text-white/50"
+                        >
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </Fragment>
+          ))}
 
           {PROJECT_CERTIFICATIONS.length > 0 && (
-            <div className="relative sm:pl-8">
-              {/* Stacked, the rail and its stubs are gone — a line pointing
-                  left would point at nothing once the columns become rows — so
-                  a label carries the relationship instead. */}
-              <p className="mb-2 text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase sm:hidden">
+            <div
+              className="relative mt-3 lg:col-start-2 lg:mt-0 lg:flex lg:items-center lg:border-l lg:border-white/[0.14] lg:pl-8"
+              // `1 / -1` does NOT work here: with no explicit grid-template-rows
+              // there is no last explicit line for -1 to name, so it collapsed
+              // to row 1 and the certificates sat beside the first project
+              // instead of centred against all of them.
+              style={{ gridRow: `1 / span ${PROJECTS.length}` }}
+            >
+              <p className="mb-2 text-[0.6875rem] font-normal tracking-[0.14em] text-white/35 uppercase lg:hidden">
                 What made all three possible
               </p>
 
               <span
                 aria-hidden="true"
-                className="absolute top-1/2 left-0 hidden h-px w-8 bg-white/[0.14] sm:block"
+                className="absolute top-1/2 left-0 hidden h-px w-8 bg-white/[0.14] lg:block"
               />
 
-              <div className="flex flex-col gap-2 pl-4 sm:w-[19rem] sm:pl-0">
+              <div className="flex w-full flex-col gap-2 pl-4 lg:pl-0">
                 {PROJECT_CERTIFICATIONS.map((entry, i) => (
                   <CertBranchStrip key={i} entry={entry} />
                 ))}
