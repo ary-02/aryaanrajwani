@@ -29,6 +29,14 @@ If a build ever fails on a missing esbuild binary: npm blocked esbuild's postins
 
 One-pager: hero, then `#journey`, `#vision`. Section ids and nav labels come from [src/lib/nav.ts](src/lib/nav.ts) — add a section there and both the desktop nav and the mobile panel pick it up, so an anchor can't drift from its target.
 
+An `#about` section was built and scrapped on 2026-08-25 — the "parts a
+traditional resume does not cover" idea, first as four registers (strengths,
+mistakes, weaknesses, procrastinations), then narrowed to one block of
+half-finished pursuits branching onto three shared fears. It shipped nothing but
+headings and card titles; the blurbs that would have carried the reasoning were
+never written, and without them it was a list with no argument. Same lesson as
+`#my-story`: the writing comes first, the section second.
+
 A third section, `#my-story`, was removed on 2026-08-08: it was still entirely placeholder and was the only thing blocking the first deploy. Both hero CTAs and the nav's "Explore more" button were repointed at `#vision`. Don't rebuild it with placeholder copy — that is exactly why it was cut. Write the narrative first.
 
 - [src/components/site-nav.tsx](src/components/site-nav.tsx) is `fixed` and lives *outside* the hero. It has to: the hero's root sets `overflow-hidden` to clip its background, which kills fixed/sticky positioning for anything nested inside.

@@ -2,7 +2,6 @@ import SiteNav from "@/components/site-nav";
 import SiteDock from "@/components/site-dock";
 import Hero42 from "@/components/blocks/hero-42";
 import Journey from "@/components/sections/journey";
-import About from "@/components/sections/about";
 import Vision from "@/components/sections/vision";
 
 export default function App() {
@@ -13,7 +12,6 @@ export default function App() {
       <main className="pb-28">
         <Hero42 />
         <Journey />
-        <About />
         <Vision />
       </main>
       <SiteDock />

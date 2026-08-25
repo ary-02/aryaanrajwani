@@ -214,16 +214,6 @@ export default function Hero42() {
                 >
                   The vision
                 </a>
-
-                {/* TODO: #about does not exist yet — the section is still to be
-                    built. Until it lands this link scrolls nowhere. Either ship
-                    the section or repoint this before the next deploy. */}
-                <a
-                  href="#about"
-                  className="flex min-h-[44px] items-center rounded-lg border border-white/20 bg-white/[0.07] px-5 py-2.5 text-base font-normal text-white/80 backdrop-blur-sm transition-[transform,background-color,border-color] duration-150 ease-out hover:border-white/35 hover:bg-white/[0.11] hover:text-white active:scale-[0.96]"
-                >
-                  About me
-                </a>
               </motion.div>
 
               {/* Scope note — what the site actually contains. Sits under the
@@ -236,8 +226,8 @@ export default function Hero42() {
                 animate="show"
                 className="mt-5 max-w-[560px] text-xs leading-[1.7] text-pretty text-white/55 italic will-change-transform sm:text-sm"
               >
-                This website covers my proof of work, wins, strengths, mistakes,
-                weaknesses, procrastinations and my ambitions.
+                This website covers proof of work, skills, abilities, growing
+                strategies and ambitions.
               </motion.p>
 
               {/* Resume — HIDDEN UNTIL THE REAL PDF LANDS.

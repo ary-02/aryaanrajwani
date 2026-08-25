@@ -10,6 +10,5 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { id: "journey", label: "Journey" },
-  { id: "about", label: "About" },
   { id: "vision", label: "Vision" },
 ];
