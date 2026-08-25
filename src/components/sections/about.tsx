@@ -1,33 +1,38 @@
 import Section, { Reveal } from "@/components/section";
 
 /**
- * The four honest registers, taken straight from the promise the hero makes:
- * "my proof of work, wins, strengths, mistakes, weaknesses, procrastinations
- * and my ambitions". Work and wins are the Journey section's job and ambitions
- * are Vision's; the middle four land here.
+ * One register, carried over from the Journey section's shooting metaphor: the
+ * shots that were lined up and then taken without real commitment. Journey
+ * shows what landed and what is mid-flight; this is the other half of the same
+ * ledger.
  *
- * Every `items` array is deliberately empty. This is the section the site does
- * not yet have the writing for, and inventing it would be worse than leaving it
- * open — a reader can tell the difference between a blank and a fake.
+ * `items` is deliberately empty. This is the section the site does not yet have
+ * the writing for, and inventing it would be worse than leaving it open — a
+ * reader can tell the difference between a blank and a fake.
  *
- * TO FILL: push entries onto the relevant array. The placeholder card below is
- * rendered only while a group is empty, so it retires itself group by group as
- * the writing lands. Delete `EmptyCard` and its call site once all four are
- * written.
+ * TO FILL: push entries onto the array. The placeholder card below renders only
+ * while it is empty, so it retires itself the moment the writing lands. Delete
+ * `EmptyCard` and its call site then.
  *
- * On tone — "mistakes" and "procrastinations" only work if each entry carries
- * WHY, and for procrastinations, what would change it. A bare list of things
- * not done reads as excuses; the same list with reasoning reads as someone who
- * knows themselves. That distinction is the whole reason this section exists.
+ * On tone — a half-taken shot only works if the entry carries WHY, and what
+ * would change it. A bare list of things not done reads as excuses; the same
+ * list with reasoning reads as someone who knows themselves. That distinction
+ * is the whole reason this section exists.
  */
 const BLOCKS: {
   label: string;
   items: { title: string; blurb: string }[];
 }[] = [
-  { label: "Strengths", items: [] },
-  { label: "Mistakes", items: [] },
-  { label: "Weaknesses", items: [] },
-  { label: "Procrastinations", items: [] },
+  {
+    label: "Shots aimed, but only half-assed",
+    items: [
+      // Titles only for now — the blurb is the part that carries the WHY, and
+      // it is the part still unwritten. Each card renders without one.
+      { title: "Content creation", blurb: "" },
+      { title: "Executing business ideas", blurb: "" },
+      { title: "Stock trading", blurb: "" },
+    ],
+  },
 ];
 
 /**
@@ -54,14 +59,14 @@ export default function About() {
       title="Parts a traditional resume does not cover"
       lede={<em>The side not too dramatic and glamorous</em>}
     >
-      <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2">
+      <div className="grid gap-x-8 gap-y-12">
         {BLOCKS.map((block) => (
           <Reveal key={block.label}>
             <h3 className="text-sm font-normal tracking-[0.14em] text-white/40 uppercase">
               {block.label}
             </h3>
 
-            <div className="mt-5 grid gap-4">
+            <div className="mt-5 grid gap-4 sm:auto-rows-fr sm:grid-cols-3">
               {block.items.length === 0 ? (
                 <EmptyCard />
               ) : (
