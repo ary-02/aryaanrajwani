@@ -122,6 +122,13 @@ interface Entry {
    */
   note?: string;
   /**
+   * Tool marks shown in place of the entry's own logo — the stack a project was
+   * built on, where an organisation would otherwise sit. Nominative use of each
+   * vendor's official mark, which is what their brand kits are published for;
+   * this is not the "trusted by" social proof the vetting checklist forbids.
+   */
+  tools?: { src: string; alt: string }[];
+  /**
    * What this entry built, shown as a branch off its own strip. Held on the
    * entry rather than on the group because these belong to one project, not to
    * the set — the certificates are the thing all three share.
@@ -300,7 +307,11 @@ const PROJECTS: Entry[] = [
     org: "Personal Project · Claude Coded · Live Demo",
     caption: "Personal use case oriented project",
     skills: ["MCP tooling", "Schema design", "Access control", "Web design"],
-    logo: "/logos/projects/portfolio.png",
+    tools: [
+      { src: "/logos/tools/vercel.svg", alt: "Vercel" },
+      { src: "/logos/tools/supabase.svg", alt: "Supabase" },
+      { src: "/logos/tools/notion.png", alt: "Notion" },
+    ],
     blurb: "",
     tags: [],
   },
@@ -1397,13 +1408,34 @@ function EntryStrip({ entry }: { entry: Entry }) {
               </MorphingDialogSubtitle>
             </div>
 
-            <div className="flex shrink-0 items-center justify-between gap-5 sm:justify-end">
-              <EntryLogo
-                entry={entry}
-                size="h-9 w-9"
-                label={entry.title}
-                Image={PlainImage}
-              />
+            <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
+              {entry.tools && entry.tools.length > 0 ? (
+                // Three marks where one logo would go, so a step smaller than
+                // the single-logo tiles or the row crowds the subtitle beside
+                // it. `alt` names each tool: unlike an organisation's logo,
+                // nothing else on the strip says what these are.
+                <div className="flex items-center gap-1">
+                  {entry.tools.map((tool) => (
+                    <div
+                      key={tool.src}
+                      className={`${LOGO_FRAME} ${LOGO_FRAME_IMAGE} h-6 w-6`}
+                    >
+                      <img
+                        src={tool.src}
+                        alt={tool.alt}
+                        className="h-full w-full object-contain p-1"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <EntryLogo
+                  entry={entry}
+                  size="h-9 w-9"
+                  label={entry.title}
+                  Image={PlainImage}
+                />
+              )}
 
               <ArrowRight
                 className="h-5 w-5 shrink-0 text-white/40 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/85"
