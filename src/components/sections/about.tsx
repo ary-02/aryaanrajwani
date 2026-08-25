@@ -50,9 +50,9 @@ export default function About() {
   return (
     <Section
       id="about"
-      eyebrow="About me"
-      title="The parts a resume has no room for."
-      lede={<em>What I am good at, what I got wrong, and what I keep avoiding</em>}
+      eyebrow="More about me"
+      title="Parts a traditional resume does not cover"
+      lede={<em>The side not too dramatic and glamorous</em>}
     >
       <div className="grid gap-x-8 gap-y-12 sm:grid-cols-2">
         {BLOCKS.map((block) => (
