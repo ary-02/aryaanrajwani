@@ -373,6 +373,17 @@ const PROJECTS: Entry[] = [
 // that holds the certification and `org` the issuing body.
 // Names and dates read off the certificates themselves, which outrank the
 // resume where the two disagree. Snippets live in public/logos/certfi/snippets.
+/**
+ * Ideas being worked on now. No dialog behind them and no arrow on the card:
+ * there is nothing to open yet, and a control that looks like the ones above
+ * but does nothing is worse than no control. They become EntryStrips the day
+ * either has something to show.
+ */
+const IN_PROGRESS: { title: string; org: string }[] = [
+  { title: "Content-Scripting Automation", org: "Personal Project" },
+  { title: "Multi Agent Orchestration in Sales", org: "Personal Project" },
+];
+
 const CERTIFICATIONS: Entry[] = [
   {
     period: "2025",
@@ -1501,6 +1512,26 @@ function EntryStrip({ entry }: { entry: Entry }) {
   );
 }
 
+/**
+ * A card in the shape of an EntryStrip, minus everything interactive.
+ *
+ * Same frame, width and height floor as the strips above, so a run of these
+ * reads as part of the same set. Dimmer text and no arrow mark it as an idea
+ * rather than a thing you can open.
+ */
+function IdeaStrip({ title, org }: { title: string; org: string }) {
+  return (
+    <article
+      className={`w-full ${PANEL_MIN_HEIGHT} flex flex-col justify-center rounded-xl border border-white/[0.10] bg-white/[0.02] px-5 py-3.5 sm:max-w-[29rem] sm:flex-1 sm:px-6`}
+    >
+      <h4 className="text-xl leading-[1.2] font-medium tracking-[-0.02em] text-white/80">
+        {title}
+      </h4>
+      <p className="mt-1 truncate text-sm text-orange-400/60">{org}</p>
+    </article>
+  );
+}
+
 function CategoryStack({
   categories,
 }: {
@@ -1716,8 +1747,11 @@ export default function Journey() {
                   />
 
                   <div>
+                    {/* "introduced", not "built": these are self-directed, and
+                        the skills below were new rather than sharpened. The
+                        work categories keep "built" for the same reason. */}
                     <p className="text-[0.6875rem] font-normal tracking-[0.14em] text-white/30 uppercase">
-                      What the work built
+                      What the work introduced
                     </p>
 
                     <div className="mt-2 flex max-w-[16rem] flex-wrap gap-1.5">
@@ -1761,6 +1795,20 @@ export default function Journey() {
               </div>
             </div>
           )}
+        </div>
+      </Reveal>
+
+      {/* Fourth heading in the run: what has landed, what is being aimed at,
+          what is aimed elsewhere, and what is still mid-flight. */}
+      <Reveal standalone className="mt-12">
+        <h3 className={BLOCK_LABEL}>Shots in progress</h3>
+
+        {/* One strip, both ideas side by side — they are a pair of bets rather
+            than a list, and stacking them would have read as a queue. */}
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch">
+          {IN_PROGRESS.map((item) => (
+            <IdeaStrip key={item.title} title={item.title} org={item.org} />
+          ))}
         </div>
       </Reveal>
 
