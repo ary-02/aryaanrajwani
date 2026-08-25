@@ -352,7 +352,7 @@ const PROJECTS: Entry[] = [
     // line, which made this card taller than its neighbours. The dialog still
     // carries the full name, and "Aryaan Rajwani / This website" reads fine.
     shortTitle: "Aryaan Rajwani",
-    org: "This website",
+    org: "This Website",
     caption: "To grasp web design and the use of open source code",
     skills: [
       "UX/UI Motion Design",
@@ -381,7 +381,8 @@ const PROJECTS: Entry[] = [
  */
 const IN_PROGRESS: { title: string; org: string }[] = [
   { title: "Content-Scripting Automation", org: "Personal Project" },
-  { title: "Multi Agent Orchestration in Sales", org: "Personal Project" },
+  { title: "Multi Agent Orchestration in Sales", org: "Exploring Gaps" },
+  { title: "Answer Engine Optimization", org: "Exploring Gaps" },
 ];
 
 const CERTIFICATIONS: Entry[] = [
@@ -495,6 +496,7 @@ const CATEGORY_CAPTIONS: Partial<Record<WorkCategory, string>> = {
   Finance: "In my peak finance bro era",
   Accounting:
     "Safe to say that I can debit what comes in and credit what goes out",
+  "Venture Capital": "Too new and too soon for a VC joke (Pre-Seed round)",
 };
 
 /**
@@ -636,6 +638,10 @@ const COMPETITIONS: Entry[] = [
   {
     period: "2025",
     title: "KPMG Ace the Case National Competition",
+    // Face label only: the full name wrapped to two lines and set the height
+    // for all three cards in the row. The dialog keeps the competition's
+    // proper name.
+    shortTitle: "KPMG Ace the Case Nationals",
     org: "Finalist",
     logo: "/logos/comp/kpmg.jpeg",
     blurb: "",
@@ -667,7 +673,7 @@ const COMPETITIONS: Entry[] = [
     // Sits under "& more": a volunteer role rather than a competition.
     period: "2025",
     title: "Global Encounters — Jubilee Games",
-    org: "HR Coordinator — Volunteer",
+    org: "Volunteer",
     logo: "/logos/comp/the-ismaili.jpeg",
     blurb: "",
     gallery: [
@@ -1522,12 +1528,67 @@ function EntryStrip({ entry }: { entry: Entry }) {
 function IdeaStrip({ title, org }: { title: string; org: string }) {
   return (
     <article
-      className={`w-full ${PANEL_MIN_HEIGHT} flex flex-col justify-center rounded-xl border border-white/[0.10] bg-white/[0.02] px-5 py-3.5 sm:max-w-[29rem] sm:flex-1 sm:px-6`}
+      className={`w-full ${PANEL_MIN_HEIGHT} flex min-w-0 flex-col justify-center rounded-xl border border-white/[0.10] bg-white/[0.02] px-5 py-3.5 sm:flex-1`}
     >
-      <h4 className="text-xl leading-[1.2] font-medium tracking-[-0.02em] text-white/80">
+      <h4 className="text-base leading-[1.3] font-medium tracking-[-0.01em] text-balance text-white/80 lg:text-lg">
         {title}
       </h4>
-      <p className="mt-1 truncate text-sm text-orange-400/60">{org}</p>
+      <p className="mt-1.5 truncate text-xs text-orange-400/60">{org}</p>
+    </article>
+  );
+}
+
+/**
+ * A compact EntryStrip: same card, same dialog, shorter and narrower so three
+ * fit across one row.
+ *
+ * Used where the entries are peers with little to distinguish them by size —
+ * competitions, where the interesting part is behind the card rather than on
+ * it. Keeps its trigger and arrow, unlike IdeaStrip, because there IS something
+ * to open.
+ */
+function CompactEntryStrip({ entry }: { entry: Entry }) {
+  return (
+    <article className="flex min-w-0 flex-1 flex-col">
+      <MorphingDialog
+        transition={{ type: "spring", stiffness: 200, damping: 24 }}
+      >
+        <MorphingDialogTrigger className="group flex h-full min-h-[4.75rem] w-full items-center gap-3 rounded-xl border border-white/[0.12] bg-white/[0.04] px-4 py-3 text-left transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.08]">
+          <EntryLogo
+            entry={entry}
+            size="h-9 w-9"
+            label={entry.title}
+            Image={PlainImage}
+          />
+
+          <span className="min-w-0 flex-1">
+            <span className="block text-xs font-normal tracking-wide text-white/45">
+              {entry.period}
+            </span>
+            <MorphingDialogTitle className="mt-0.5 line-clamp-2 text-sm leading-[1.3] font-medium text-white">
+              {entry.shortTitle ?? entry.title}
+            </MorphingDialogTitle>
+            <MorphingDialogSubtitle className="mt-0.5 truncate text-xs text-orange-400/80">
+              {entry.org}
+            </MorphingDialogSubtitle>
+          </span>
+
+          <ArrowRight
+            className="h-4 w-4 shrink-0 text-white/35 transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white/80"
+            aria-hidden="true"
+          />
+        </MorphingDialogTrigger>
+
+        <MorphingDialogContainer>
+          <MorphingDialogContent className="relative w-full max-w-lg rounded-xl border border-white/[0.14] bg-[#1f130b]">
+            <div className="max-h-[85vh] overflow-y-auto p-7 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <EntryDetail entry={entry} morph />
+            </div>
+
+            <MorphingDialogClose className="top-4 right-4 z-50 flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.10] bg-[#1f130b]/85 text-white/60 backdrop-blur-sm transition-colors duration-200 hover:border-white/25 hover:text-white" />
+          </MorphingDialogContent>
+        </MorphingDialogContainer>
+      </MorphingDialog>
     </article>
   );
 }
@@ -1805,7 +1866,7 @@ export default function Journey() {
 
         {/* One strip, both ideas side by side — they are a pair of bets rather
             than a list, and stacking them would have read as a queue. */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-stretch">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
           {IN_PROGRESS.map((item) => (
             <IdeaStrip key={item.title} title={item.title} org={item.org} />
           ))}
@@ -1816,42 +1877,45 @@ export default function Journey() {
           intrinsic height — `minHeight` is what sizes the row, set to one card
           plus the block's padding. */}
       {/* Every certification now branches off the work or the projects that
-          produced it, so this block usually has nothing left to show. It stays
-          for the day one lands that belongs to neither — rendering an empty
-          bordered box would read as a loading failure. */}
-      <div
-        className={`mt-6 grid gap-6 lg:mt-8 lg:gap-8 ${
-          UNBRANCHED_CERTIFICATIONS.length > 0 ? "lg:grid-cols-2" : ""
-        }`}
-      >
-        {UNBRANCHED_CERTIFICATIONS.length > 0 && (
-          <Reveal standalone>
-            <EntryBlock
-              label="Certifications"
-              minHeight="min-h-[278px]"
-              blurHeight="26%"
-            >
-              <LoopingEntries entries={UNBRANCHED_CERTIFICATIONS} />
-            </EntryBlock>
-          </Reveal>
-        )}
-
-        <Reveal standalone>
+          produced it, so this block has nothing left to show. It returns the
+          day one lands that belongs to neither — an empty bordered box would
+          read as a loading failure, so it renders nothing at all instead. */}
+      {UNBRANCHED_CERTIFICATIONS.length > 0 && (
+        <Reveal standalone className="mt-6 lg:mt-8">
           <EntryBlock
-            label="Competitions & More"
+            label="Certifications"
             minHeight="min-h-[278px]"
             blurHeight="26%"
           >
-            <LoopingEntries entries={COMPETITIONS} />
+            <LoopingEntries entries={UNBRANCHED_CERTIFICATIONS} />
           </EntryBlock>
         </Reveal>
-      </div>
+      )}
 
-      {/* Education closes the section: one full-width card, no scroll. */}
-      <Reveal standalone className="mt-6 lg:mt-8">
+      {/*
+        Education and the competitions below it are a different subject from
+        the shots above, so the gap here is deliberately out of step with the
+        mt-12 rhythm the headings use. Nothing labels the change; the extra air
+        is the signal, which is why it has to be obviously bigger rather than
+        one step up.
+      */}
+      <Reveal standalone className="mt-24">
         <EntryBlock label="Education" scrollable={false} minHeight="min-h-0">
           <EntryList entries={EDUCATION} />
         </EntryBlock>
+      </Reveal>
+
+      {/* One row, three cards, thinner than the strips above: these are peers
+          with nothing to rank them by, and the substance is inside the dialog
+          rather than on the face. */}
+      <Reveal standalone className="mt-8">
+        <h3 className={BLOCK_LABEL}>Competitions &amp; More</h3>
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
+          {COMPETITIONS.map((entry, i) => (
+            <CompactEntryStrip key={i} entry={entry} />
+          ))}
+        </div>
       </Reveal>
 
       {/* Skills */}
