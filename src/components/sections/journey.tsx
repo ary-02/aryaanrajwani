@@ -321,6 +321,17 @@ const PROJECTS: Entry[] = [
       { src: "/logos/tools/claude.svg", alt: "Claude" },
     ],
     blurb: "",
+    // The private deployment is the one actually in daily use, running on my
+    // real holdings, and it stays gated for that reason. This public demo is
+    // the honest stand-in — same build, sample data — so "Live" on the card
+    // face has somewhere to land.
+    links: [
+      {
+        label: "View live demo",
+        href: "https://aryaanrajwani-demodashboard.vercel.app/",
+      },
+    ],
+    note: "This demo runs on sample data. The private version I use day to day tracks my real portfolio — recruiters and founders genuinely interested can ask for access.",
     tags: [],
   },
   {
