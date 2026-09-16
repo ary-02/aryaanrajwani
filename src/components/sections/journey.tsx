@@ -345,11 +345,10 @@ const PROJECTS: Entry[] = [
     // "Claude" dropped from the front — see the Portfolio Tracker entry above.
     title: "Automated Discounted Cash Flow Model",
     shortTitle: "Auto DCF Builder",
-    // Cropped from the app's own Mode-selection screen: the black step
-    // indicator, the boldest mark on an otherwise black-and-white page. The
-    // Result step would give a chart snippet closer to the Portfolio
-    // Tracker's, but reaching it needs a real PitchBook export uploaded,
-    // which isn't something to fabricate.
+    // Cropped from the app's own Mode-selection screen: the "Auto-DCF"
+    // wordmark itself. The Result step would give a chart snippet closer to
+    // the Portfolio Tracker's, but reaching it needs a real PitchBook export
+    // uploaded, which isn't something to fabricate.
     logo: "/logos/projects/auto-dcf.png",
     org: "Personal Project · Live",
     caption: "One of many automation ideas but this one felt natural to me",
