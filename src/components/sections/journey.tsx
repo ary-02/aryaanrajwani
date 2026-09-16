@@ -299,8 +299,12 @@ const WORK_EXPERIENCE: Entry[] = [
 const PROJECTS: Entry[] = [
   {
     period: "July 2026",
-    title: "Claude Coded Portfolio Tracker",
-    shortTitle: "Portfolio Tracker",
+    // "Claude Coded" dropped from the visible name — it'll be said properly
+    // in the description instead of worn as a prefix on the title.
+    title: "Portfolio Tracker",
+    // A crop of the live dashboard's own chart, not a generic project icon —
+    // this one has an actual product to show a piece of.
+    logo: "/logos/projects/portfolio-tracker.png",
     // Middots rather than semicolons, matching the Accounting strip's
     // "Doane Grant Thornton · G&R CPA" — the strips all separate this line the
     // same way.
@@ -338,7 +342,8 @@ const PROJECTS: Entry[] = [
   },
   {
     period: "August 2026",
-    title: "Claude Automated Discounted Cash Flow Model",
+    // "Claude" dropped from the front — see the Portfolio Tracker entry above.
+    title: "Automated Discounted Cash Flow Model",
     shortTitle: "Auto DCF Builder",
     org: "Personal Project · Live",
     caption: "One of many automation ideas but this one felt natural to me",
