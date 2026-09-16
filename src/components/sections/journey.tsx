@@ -383,6 +383,9 @@ const PROJECTS: Entry[] = [
     // line, which made this card taller than its neighbours. The dialog still
     // carries the full name, and "Aryaan Rajwani / This website" reads fine.
     shortTitle: "Aryaan Rajwani",
+    // The site's own favicon — the one project card that can legitimately use
+    // it, since the project IS this site.
+    logo: "/favicon.png",
     org: "This Website",
     caption: "To grasp web design and the use of open source code",
     skills: [
