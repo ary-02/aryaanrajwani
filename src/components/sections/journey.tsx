@@ -321,17 +321,19 @@ const PROJECTS: Entry[] = [
       { src: "/logos/tools/claude.svg", alt: "Claude" },
     ],
     blurb: "",
-    // The private deployment is the one actually in daily use, running on my
-    // real holdings, and it stays gated for that reason. This public demo is
-    // the honest stand-in — same build, sample data — so "Live" on the card
-    // face has somewhere to land.
+    // Both are linked: the demo is open to anyone, the private dashboard sits
+    // behind its own login key, so pointing at it here costs nothing.
     links: [
       {
         label: "View live demo",
         href: "https://aryaanrajwani-demodashboard.vercel.app/",
       },
+      {
+        label: "Private dashboard",
+        href: "https://portfolio-dashboard-private.vercel.app/",
+      },
     ],
-    note: "This demo runs on sample data. The private version I use day to day tracks my real portfolio — recruiters and founders genuinely interested can ask for access.",
+    note: "Demo runs on sample data. Private dashboard includes an updated UI. Please reach out for access to the private dashboard.",
     tags: [],
   },
   {
@@ -354,6 +356,14 @@ const PROJECTS: Entry[] = [
       { src: "/logos/tools/claude.svg", alt: "Claude" },
     ],
     blurb: "",
+    // TODO: more to add here once it's written — for now just the link, so
+    // "Live" on the card face has somewhere to go.
+    links: [
+      {
+        label: "View live demo",
+        href: "https://auto-dcf-frontend.onrender.com/",
+      },
+    ],
     tags: ["Beta"],
   },
   {
