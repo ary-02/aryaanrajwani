@@ -304,7 +304,7 @@ const PROJECTS: Entry[] = [
     // Middots rather than semicolons, matching the Accounting strip's
     // "Doane Grant Thornton · G&R CPA" — the strips all separate this line the
     // same way.
-    org: "Personal Project · Claude Coded · Live",
+    org: "Personal Project · Live",
     caption: "Personal use case oriented project",
     skills: [
       "MCP tooling",
@@ -340,7 +340,7 @@ const PROJECTS: Entry[] = [
     period: "August 2026",
     title: "Claude Automated Discounted Cash Flow Model",
     shortTitle: "Auto DCF Builder",
-    org: "Personal Project · Claude Coded · Live",
+    org: "Personal Project · Live",
     caption: "One of many automation ideas but this one felt natural to me",
     skills: [
       "Version Control",
