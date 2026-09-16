@@ -8,9 +8,7 @@
  */
 import { motion, type Variants } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-// Restore alongside the commented-out <ResumeDialog /> below — `noUnusedLocals`
-// fails the build on an import with no remaining usage.
-// import ResumeDialog from "@/components/resume-dialog";
+import ResumeDialog from "@/components/resume-dialog";
 
 // ─── Playfair Display for the italic serif headline line ───────────────────
 const fontStyle = `@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700;1,800&display=swap');`;
@@ -230,15 +228,11 @@ export default function Hero42() {
                 strategies and ambitions.
               </motion.p>
 
-              {/* Resume — HIDDEN UNTIL THE REAL PDF LANDS.
-                  public/resume.pdf is still the placeholder stub, and a button
-                  that downloads a stub reads as broken, where a missing one
-                  just reads as not-built-yet. To restore: drop the real resume
-                  at public/resume.pdf, run `npm run resume:check`, then
-                  uncomment this block and its import above. The dialog draws
-                  its own preview from the PDF, so there is nothing else to
-                  update.
-
+              {/* Resume. Sits below the scope note rather than in the CTA row:
+                  the row is about where to go on this page, and this leaves it.
+                  The dialog draws its own preview from public/resume.pdf, so
+                  replacing that file is the whole update — run
+                  `npm run resume:check` against it first. */}
               <motion.div
                 variants={ctaVariants}
                 initial="hidden"
@@ -247,7 +241,6 @@ export default function Hero42() {
               >
                 <ResumeDialog />
               </motion.div>
-              */}
             </div>
           </div>
         </div>
