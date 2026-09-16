@@ -1,4 +1,4 @@
-import { Download, ExternalLink, FileText } from "lucide-react";
+import { ExternalLink, FileText } from "lucide-react";
 import {
   MorphingDialog,
   MorphingDialogTrigger,
@@ -12,11 +12,9 @@ import { ShimmerButton } from "@/components/blocks/shimmer-button";
 import PdfPage from "@/components/pdf-page";
 
 /**
- * TODO: replace public/resume.pdf with the real file — this is a placeholder.
- *
  * One file, and only one. The preview below is drawn from this same PDF, so
- * dropping a new one in updates the dialog and the download together. Nothing
- * to regenerate.
+ * dropping a new one in updates the dialog automatically. Nothing to
+ * regenerate. See the Resume section of CLAUDE.md for the replacement steps.
  */
 const RESUME_URL = "/resume.pdf";
 
@@ -27,9 +25,9 @@ const ACTION_BASE =
  * Resume button that morphs open into a PDF preview.
  *
  * Uses the same MorphingDialog as the Journey cards so the interaction reads as
- * one system. `#toolbar=0&navpanes=0` hides the browser viewer's own chrome so
- * the embed looks like a snippet rather than a nested application — the two
- * explicit actions below it do that job instead.
+ * one system. There is deliberately no download action: the resume is meant
+ * to be read here or in the browser's own viewer, not saved off a personal
+ * site as a file.
  */
 export default function ResumeDialog() {
   return (
@@ -82,22 +80,16 @@ export default function ResumeDialog() {
               />
             </div>
 
-            {/* Actions */}
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <a
-                href={RESUME_URL}
-                download
-                className={`${ACTION_BASE} bg-orange-600 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.20),0_2px_8px_rgba(234,88,12,0.35)] hover:bg-orange-500`}
-              >
-                <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
-                Download
-              </a>
-
+            {/* Single action. Download used to sit beside this — dropped
+                because the resume is meant to be read here or opened in the
+                browser's own viewer, not saved as a file from a personal
+                site. */}
+            <div className="mt-5">
               <a
                 href={RESUME_URL}
                 target="_blank"
                 rel="noreferrer noopener"
-                className={`${ACTION_BASE} border border-white/20 bg-white/[0.07] text-white/85 hover:border-white/35 hover:bg-white/[0.12] hover:text-white`}
+                className={`${ACTION_BASE} bg-orange-600 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.20),0_2px_8px_rgba(234,88,12,0.35)] hover:bg-orange-500`}
               >
                 <ExternalLink className="h-4 w-4 shrink-0" aria-hidden="true" />
                 View in browser
