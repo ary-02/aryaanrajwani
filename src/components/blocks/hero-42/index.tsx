@@ -36,6 +36,16 @@ const bgVariants: Variants = {
   },
 };
 
+/** Status pill: fades in first, ahead of the headline. */
+const badgeVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", damping: 26, stiffness: 120, delay: 0.1 },
+  },
+};
+
 /** Stagger wrapper for headline lines */
 const headlineContainerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -140,6 +150,24 @@ export default function Hero42() {
           {/* Top padding clears the fixed nav, which used to sit here in flow. */}
           <div className="flex flex-1 flex-col justify-center px-6 pt-32 pb-20 sm:px-8 sm:pt-36 md:px-12 lg:px-14 lg:pt-40">
             <div className="flex max-w-4xl flex-col items-start">
+              {/* Status pill — the one place on the site that answers "is this
+                  relevant to me" before a visitor reads a word of the
+                  headline. A live-status dot rather than a static one: it is
+                  the same visual language recruiters already read as
+                  "actively looking" on LinkedIn. */}
+              <motion.div
+                variants={badgeVariants}
+                initial="hidden"
+                animate="show"
+                className="mb-5 flex items-center gap-2 rounded-full border border-white/[0.14] bg-white/[0.05] px-3.5 py-1.5 text-xs font-normal text-white/70 backdrop-blur-sm will-change-transform sm:text-sm"
+              >
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Open to opportunities in fintech, business dev &amp; startups
+              </motion.div>
+
               {/* Headline — each line animates independently */}
               <motion.h1
                 variants={headlineContainerVariants}

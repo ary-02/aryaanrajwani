@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, type Variants } from "framer-motion";
-import { ChevronDown, Globe, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { NAV_ITEMS } from "@/lib/nav";
 
 /** Slides down from top + blur-clear. Carried over from the hero's nav. */
@@ -122,17 +122,8 @@ export default function SiteNav() {
           ))}
         </div>
 
-        {/* Right: language selector + CTA + mobile toggle */}
+        {/* Right: CTA + mobile toggle */}
         <div className="flex items-center gap-3">
-          <button className="group hidden min-h-[40px] items-center gap-1.5 text-sm font-normal text-white/70 transition-colors duration-200 hover:text-white md:flex active:scale-[0.96]">
-            <Globe className="h-4 w-4 shrink-0" aria-hidden="true" />
-            EN
-            <ChevronDown
-              className="h-3.5 w-3.5 opacity-70 transition-transform duration-200 group-hover:rotate-180"
-              aria-hidden="true"
-            />
-          </button>
-
           <a
             href="#vision"
             className="hidden min-h-[40px] items-center rounded-lg border border-white/25 bg-white/[0.06] px-4 py-2 text-sm font-normal text-white/85 backdrop-blur-sm transition-[transform,background-color,border-color] duration-150 ease-out hover:border-white/40 hover:bg-white/[0.10] hover:text-white active:scale-[0.96] sm:flex"

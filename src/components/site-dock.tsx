@@ -47,6 +47,8 @@ export default function SiteDock() {
           className="items-end border border-white/[0.12] bg-[#241710]/80 pb-3 backdrop-blur-md"
           magnification={64}
           distance={120}
+          // Upstream's 40px rest size sat under the 44px minimum tap target.
+          baseItemSize={44}
         >
           {CONTACTS.map((contact) => {
             const Icon = contact.icon;

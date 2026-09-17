@@ -30,6 +30,10 @@ const DOCK_HEIGHT = 128;
 const DEFAULT_MAGNIFICATION = 80;
 const DEFAULT_DISTANCE = 150;
 const DEFAULT_PANEL_HEIGHT = 64;
+// Upstream hardcoded 40 as both the interpolation range's rest-state value
+// and its edge value. Exposed as a prop so a caller can raise the resting
+// size to a real tap target without touching this file — see NOTES.md.
+const DEFAULT_BASE_ITEM_SIZE = 40;
 
 export type DockProps = {
   children: React.ReactNode;
@@ -37,6 +41,8 @@ export type DockProps = {
   distance?: number;
   panelHeight?: number;
   magnification?: number;
+  /** Resting width/height of each item, in px, before the cursor's magnification takes over. */
+  baseItemSize?: number;
   spring?: SpringOptions;
 };
 
@@ -66,6 +72,7 @@ export type DocContextType = {
   spring: SpringOptions;
   magnification: number;
   distance: number;
+  baseItemSize: number;
 };
 
 export type DockProviderProps = {
@@ -94,6 +101,7 @@ function Dock({
   magnification = DEFAULT_MAGNIFICATION,
   distance = DEFAULT_DISTANCE,
   panelHeight = DEFAULT_PANEL_HEIGHT,
+  baseItemSize = DEFAULT_BASE_ITEM_SIZE,
 }: DockProps) {
   const mouseX = useMotionValue(Infinity);
   const isHovered = useMotionValue(0);
@@ -130,7 +138,9 @@ function Dock({
         role="toolbar"
         aria-label="Application dock"
       >
-        <DockProvider value={{ mouseX, spring, distance, magnification }}>
+        <DockProvider
+          value={{ mouseX, spring, distance, magnification, baseItemSize }}
+        >
           {children}
         </DockProvider>
       </motion.div>
@@ -149,7 +159,7 @@ function DockItem({
 }: DockItemProps) {
   const ref = useRef<HTMLDivElement>(null);
 
-  const { distance, magnification, mouseX, spring } = useDock();
+  const { distance, magnification, mouseX, spring, baseItemSize } = useDock();
 
   const isHovered = useMotionValue(0);
 
@@ -161,7 +171,7 @@ function DockItem({
   const widthTransform = useTransform(
     mouseDistance,
     [-distance, 0, distance],
-    [40, magnification, 40],
+    [baseItemSize, magnification, baseItemSize],
   );
 
   const width = useSpring(widthTransform, spring);

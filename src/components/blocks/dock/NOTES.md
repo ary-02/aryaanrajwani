@@ -39,6 +39,12 @@ Magnification maths, spring config, context and tooltip behaviour are verbatim.
 - `cloneElement` target typed as `ReactElement<Record<string, unknown>>` —
   React 19's `ReactElement` defaults its props to `unknown`, which makes the
   untyped upstream call a compile error.
+- **Added a `baseItemSize` prop (2026-09-17).** Upstream hardcoded `40` as both
+  the rest-state and edge value of each item's width-interpolation range, with
+  no way to change it short of editing this file. Our four contact icons sat at
+  that 40px rest size, under the 44px minimum tap target — `site-dock.tsx` now
+  passes `baseItemSize={44}` rather than the component being edited per call
+  site. Defaults to `40` so nothing else changes.
 
 ## Integration
 
