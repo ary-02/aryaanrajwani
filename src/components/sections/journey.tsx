@@ -738,18 +738,6 @@ const COMPETITIONS: Entry[] = [
   },
 ];
 
-// TODO: replace with the real toolkit.
-const SKILLS = [
-  "Skill",
-  "Skill",
-  "Skill",
-  "Skill",
-  "Skill",
-  "Skill",
-  "Skill",
-  "Skill",
-];
-
 /** Section label inside a dialog — echoes the block headings in the grid. */
 const DIALOG_LABEL =
   "text-[0.6875rem] font-normal tracking-[0.14em] text-white/40 uppercase";
@@ -2055,23 +2043,6 @@ export default function Journey() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-stretch">
           {COMPETITIONS.map((entry, i) => (
             <CompactEntryStrip key={i} entry={entry} />
-          ))}
-        </div>
-      </Reveal>
-
-      {/* Skills */}
-      <Reveal className="mt-16">
-        <h3 className="text-sm font-normal tracking-[0.14em] text-white/40 uppercase">
-          Toolkit
-        </h3>
-        <div className="mt-5 flex flex-wrap gap-2.5">
-          {SKILLS.map((skill, i) => (
-            <span
-              key={i}
-              className="rounded-lg border border-white/[0.12] bg-white/[0.06] px-4 py-2 text-sm text-white/80 backdrop-blur-sm transition-[background-color,border-color] duration-200 hover:border-white/[0.22] hover:bg-white/[0.11]"
-            >
-              {skill}
-            </span>
           ))}
         </div>
       </Reveal>
