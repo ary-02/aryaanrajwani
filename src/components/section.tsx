@@ -75,6 +75,9 @@ export default function Section({
   return (
     <section
       id={id}
+      // Doubles as the hook SectionTimeTracker watches — every section gets
+      // dwell-time analytics for free, with no per-call-site wiring.
+      data-section={id}
       className="scroll-mt-24 border-t border-white/[0.06] px-6 py-24 sm:px-8 md:px-12 lg:px-14 lg:py-32"
     >
       <motion.div

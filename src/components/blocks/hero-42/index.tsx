@@ -97,6 +97,9 @@ export default function Hero42() {
       <style>{fontStyle}</style>
 
       <div
+        // Watched by SectionTimeTracker (src/components/section-time-tracker.tsx),
+        // the same way every Section-shell block below it already is.
+        data-section="hero"
         className="relative min-h-screen w-full overflow-hidden antialiased selection:bg-orange-500/30 selection:text-white"
         style={{ backgroundColor: BG }}
       >

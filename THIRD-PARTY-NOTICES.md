@@ -133,6 +133,7 @@ directory under `node_modules/`.
 | tailwind-merge | MIT — Copyright (c) Dany Castillo |
 | react-use-measure | MIT — Copyright (c) Paul Henschel |
 | pdfjs-dist | Apache-2.0 — Copyright Mozilla Foundation |
+| @vercel/analytics | MIT — Copyright (c) 2026 Vercel, Inc. |
 
 `pdfjs-dist` is Mozilla's [pdf.js](https://github.com/mozilla/pdf.js). It draws
 the first page of `public/resume.pdf` onto a canvas in
