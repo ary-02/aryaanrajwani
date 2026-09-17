@@ -336,6 +336,10 @@ const PROJECTS: Entry[] = [
         label: "Private dashboard",
         href: "https://portfolio-dashboard-private.vercel.app/",
       },
+      {
+        label: "Design notes",
+        href: "https://app.notion.com/p/Personal-Dashboard-38ea2e49dfa8807c975ef343fc1fc429",
+      },
     ],
     note: "Demo runs on sample data. Private dashboard includes an updated UI. Please reach out for access to the private dashboard.",
     tags: [],
@@ -372,6 +376,10 @@ const PROJECTS: Entry[] = [
       {
         label: "View live demo",
         href: "https://auto-dcf-frontend.onrender.com/",
+      },
+      {
+        label: "Build notes",
+        href: "https://app.notion.com/p/DCF-Pipeline-Build-Notes-3a0a2e49dfa88185a714c15a2d6c2049",
       },
     ],
     tags: ["Beta"],
