@@ -168,7 +168,8 @@ export default function Hero42() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400/60" />
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
                 </span>
-                Open to opportunities in fintech, business dev &amp; startups
+                Open to opportunities in finance, fintech, business dev, sales
+                &amp; marketing and startups
               </motion.div>
 
               {/* Headline — each line animates independently */}
